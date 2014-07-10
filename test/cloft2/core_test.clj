@@ -6,4 +6,4 @@
   #_(testing "FIXME, I fail."
     (is (= 0 1)))
   (testing "dummyyy"
-    (is (= 1 1)))
+    (is (= 1 1)) )
