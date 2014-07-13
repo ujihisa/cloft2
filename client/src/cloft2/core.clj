@@ -41,7 +41,6 @@
                          [msgtype msg]
                          (if (< 10 (count orig)) (drop-last orig) orig)))
                      msg)
-              (prn @recent-msgs)
               (clj-http.client/post
                 "http://lingr.com/api/room/say"
                 {:form-params
