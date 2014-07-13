@@ -27,14 +27,28 @@
                     [clojure.string :as s])
           (:import [org.bukkit Bukkit]
                    [org.bukkit.event HandlerList]))
-        (defn post [room msg]
-          (clj-http.client/post
-            "http://lingr.com/api/room/say"
-            {:form-params
-             {:room room
-              :bot 'sugoicraft
-              :text (str msg)
-              :bot_verifier "bb5060f31bc6e89018c55ac72d39d5ca6aca75c9"}}))
+        (let [recent-msgs (atom [])]
+          (defn post [msg & [msgtype]]
+            (prn '= msgtype
+                 (-> @recent-msgs first first)
+                 (-> @recent-msgs second first))
+            (when-not (and msgtype (= msgtype
+                                      (-> @recent-msgs first first)
+                                      (-> @recent-msgs second first)))
+              (swap! recent-msgs
+                     (fn [orig msg]
+                       (cons
+                         [msgtype msg]
+                         (if (< 10 (count orig)) (drop-last orig) orig)))
+                     msg)
+              (prn @recent-msgs)
+              (clj-http.client/post
+                "http://lingr.com/api/room/say"
+                {:form-params
+                 {:room "mcujm"
+                  :bot 'sugoicraft
+                  :text (str msg)
+                  :bot_verifier "bb5060f31bc6e89018c55ac72d39d5ca6aca75c9"}}))))
 
         (let [plugin (-> (Bukkit/getPluginManager) (.getPlugin "cloft2"))]
           (defn later* [tick f]
@@ -49,11 +63,11 @@
                       (s/replace "benri" "便利")
                       (s/replace "fuben" "不便"))
                 postmsg (<< "<~(-> player .getName)> ~{msg}")]
-            (post "mcujm" postmsg)))
+            (post postmsg)))
         (defn PlayerLoginEvent [evt]
           (let [player (-> evt .getPlayer)
                 msg (<< "~(-> player .getName) logged in.")]
-            (post "mcujm" msg)
+            (post msg ['login-logout (-> player .getName)])
             (later 0
               (.sendMessage player "Welcome to cloft2!")
               (.sendMessage player "Minecraft→Lingr通知が行われるが、Lingr→Minecraft通知は未実装なので要注意"))))
@@ -62,11 +76,11 @@
             org.bukkit.event.block.Action/LEFT_CLICK_AIR
             #_(let [msg (<< "~(-> evt .getPlayer .getName) clicked air at ~(-> evt .getPlayer .getLocation)")]
               (prn msg)
-              (prn (post "mcujm" msg)))
+              (prn (post msg)))
             (prn :else (.getAction evt))))
         (defn PlayerQuitEvent [evt]
           (let [msg (<< "~(-> evt .getPlayer .getName) logged out.")]
-            (post "mcujm" msg)))
+            (post msg ['login-logout (-> evt .getPlayer .getName)])))
         (def table {org.bukkit.event.player.AsyncPlayerChatEvent
                     AsyncPlayerChatEvent
                     org.bukkit.event.player.PlayerLoginEvent
