@@ -71,8 +71,10 @@
                       (s/replace #"unko" "unko大量生産!ブリブリo(-\"-;)o⌒ξ~ξ~ξ~ξ~ξ~ξ~ξ~ξ~")
                       (s/replace #"dks" "溺((o(´o｀)o))死")
                       (s/replace #"tkm" "匠")
-                      (s/replace #"^!\?$", "!? な、なんだってーΩ ΩΩ"))
+                      (s/replace #"^!\?$", "!? な、なんだってーΩ ΩΩ")
+                      (s/replace #"^!list$" (<< "!list\n~(s/join \" \" (map #(.getName %) (Bukkit/getOnlinePlayers)))")))
                 postmsg (<< "<~(-> player .getName)> ~{msg}")]
+            (.setMessage evt msg)
             (post postmsg)))
         (defn PlayerLoginEvent [evt]
           (let [player (-> evt .getPlayer)
