@@ -1,4 +1,4 @@
-(defproject cloft2 "0.1-SNAPSHOT"
+(defproject cloft2-client "0.1-SNAPSHOT"
   :description "FIXME: write description"
   :url "https://github.com/ujihisa/cloft2"
   :license {:name "GNU GPL v3+"
@@ -11,5 +11,4 @@
                  [org.bukkit/bukkit "1.7.10-R0.1-SNAPSHOT"]]
   :main ^:skip-aot cloft2.core
   :target-path "target/%s"
-  :profiles {:uberjar {:aot :all}}
   :min-lein-version "2.2.0")
