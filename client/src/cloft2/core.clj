@@ -29,7 +29,7 @@
                    [org.bukkit.event HandlerList]))
         (let [recent-msgs (atom [])]
           (defn post [msg & [msgtype]]
-            (prn '= msgtype
+            #_(prn '= msgtype
                  (-> @recent-msgs first first)
                  (-> @recent-msgs second first))
             (when-not (and msgtype (= msgtype
@@ -59,9 +59,19 @@
 
         (defn AsyncPlayerChatEvent [evt]
           (let [player (-> evt .getPlayer)
-                msg (-> (-> evt .getMessage)
-                      (s/replace "benri" "便利")
-                      (s/replace "fuben" "不便"))
+                msg (-> evt .getMessage
+                      (s/replace #"benri" "便利")
+                      (s/replace #"[fh]u[bv]en" "不便")
+                      (s/replace #"wa-i" "わーい[^。^]")
+                      (s/replace #"dropper|ドロッパ" "泥(・ω・)ﾉ■ ｯﾊﾟ")
+                      (s/replace #"hopper|ホッパ" "穂(・ω・)ﾉ■ ｯﾊﾟ")
+                      (s/replace #"\bkiken" "危険")
+                      (s/replace #"\banzen" "安全")
+                      (s/replace #"wkwk" "((o(´∀｀)o))ﾜｸﾜｸ")
+                      (s/replace #"unko" "unko大量生産!ブリブリo(-\"-;)o⌒ξ~ξ~ξ~ξ~ξ~ξ~ξ~ξ~")
+                      (s/replace #"dks" "溺((o(´o｀)o))死")
+                      (s/replace #"tkm" "匠")
+                      (s/replace #"^!\?$", "!? な、なんだってーΩ ΩΩ"))
                 postmsg (<< "<~(-> player .getName)> ~{msg}")]
             (post postmsg)))
         (defn PlayerLoginEvent [evt]
