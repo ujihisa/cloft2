@@ -1,36 +1,27 @@
 # cloft2
 
-FIXME: description
+    $ -- Prepare Server Plugin
+    $ cd server
+    $ lein uberjar
+    $ cp -p ./run ~/src/craftbukkit
+    $ ln -s ./target/sugoi.jar ~/src/craftbukkit/plugins/
+    # -- Start server
+    $ cd ~/src/craftbukkit
+    $ iexe ./run
+    # -- Inject client
+    $ cd -
+    $ cd ../client
+    $ lein run
 
-## Installation
+By default cloft2 server/client uses port 7888 but you can configure (eventually.)
 
-Download from http://example.com/FIXME.
-
-## Usage
-
-FIXME: explanation
-
-    $ java -jar cloft2-0.1.0-standalone.jar [args]
-
-## Options
-
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
 ### Might be Useful
+
+* <http://jenkins.raa0121.info/job/cloft2/>
+* <http://lingr.com/room/mcujm>
 
 ## License
 
-Copyright © 2014 FIXME
+Copyright (c) 2014 Tatsuhiro Ujihisa
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+Distributed under the GPL version 3 or any later version.

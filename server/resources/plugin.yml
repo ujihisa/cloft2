@@ -1,0 +1,6 @@
+name: cloft2
+main: io.github.ujihisa.cloft2.Server
+version: 1.0
+website: http://ujihisa.wordpress.com
+author: Tatsuhiro Ujihisa
+description: lingr

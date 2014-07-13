@@ -1,8 +1,9 @@
 name: cloft2
-main: cloft2.ClojurePlugin
+main: io.github.ujihisa.cloft2.ClojurePlugin
 version: 0.1
 website: http://ujihisa.wordpress.com
 author: Tatsuhiro Ujihisa
 description: lingr
-#depend: [clj-minecraft]
-#class-loader-of: clj-minecraft
+depend:
+  - javaloader
+# class-loader-of: javaloader
