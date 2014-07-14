@@ -1,4 +1,5 @@
-(ns cloft2.super-dash
+(ns cloft2.fast-dash
+  (:use [cloft2.lib :only (later sec)])
   (:import [org.bukkit Bukkit Material]))
 
 (def dash-id-table (atom {}))
@@ -12,11 +13,12 @@
           (.setWalkSpeed player 0.4)
           (swap! dash-id-table assoc player dash-id)
           (later (sec 4)
-                 (when (= dash-id (@dash-id-table player))
-                   #_(helper/smoke-effect (.getLocation player))
-                   (.setWalkSpeed player 0.6)))))
+            (when (= dash-id (@dash-id-table player))
+              #_(helper/smoke-effect (.getLocation player))
+              (.setWalkSpeed player 0.6)))))
       (do
         (.setWalkSpeed player 0.2)
         (swap! dash-id-table assoc player nil)))))
 
 [(.getName *ns*) 'SUCCESSFULLY-COMPLETED]
+; vim: set lispwords+=later :

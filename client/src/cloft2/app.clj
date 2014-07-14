@@ -1,8 +1,9 @@
 (ns cloft2.core
-  (:use [clojure.core.strint :only (<<)])
+  (:use [clojure.core.strint :only (<<)]
+        [cloft2.lib :only (later sec)])
   (:require [clj-http.client]
             [clojure.string :as s]
-            [cloft2.super-dash])
+            [cloft2.fast-dash])
   (:import [org.bukkit Bukkit Material]
            [org.bukkit.event HandlerList]))
 (let [recent-msgs (atom [])]
@@ -27,17 +28,8 @@
           :text (str msg)
           :bot_verifier "bb5060f31bc6e89018c55ac72d39d5ca6aca75c9"}}))))
 
-(defn sec [n]
-  (int (* 20 n)))
-(let [plugin (-> (Bukkit/getPluginManager) (.getPlugin "cloft2"))]
-  (defn later* [tick f]
-    (.scheduleSyncDelayedTask
-      (org.bukkit.Bukkit/getScheduler) plugin f tick)))
-(defmacro later [tick & exps]
-  `(later* ~tick (fn [] ~@exps)))
-
 (defn PlayerToggleSprintEvent [evt]
-  (cloft2.super-dash/PlayerToggleSprintEvent evt))
+  (cloft2.fast-dash/PlayerToggleSprintEvent evt))
 
 (defn AsyncPlayerChatEvent [evt]
   (let [player (-> evt .getPlayer)
@@ -63,8 +55,8 @@
         msg (<< "~(-> player .getName) logged in.")]
     (post-lingr msg ['login-logout (-> player .getName)])
     (later 0
-           (.sendMessage player "Welcome to cloft2!")
-           (.sendMessage player "Dynmap http://mck.supermomonga.com:8123/"))))
+      (.sendMessage player "Welcome to cloft2!")
+      (.sendMessage player "Dynmap http://mck.supermomonga.com:8123/"))))
 (defn PlayerInteractEvent [evt]
   (condp = (.getAction evt)
     org.bukkit.event.block.Action/LEFT_CLICK_AIR
@@ -103,6 +95,5 @@
       executer
       plugin))
   ujm)
-
 [(.getName *ns*) 'SUCCESSFULLY-COMPLETED]
 ; vim: set lispwords+=later :
