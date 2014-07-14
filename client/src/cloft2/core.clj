@@ -81,7 +81,7 @@
             (post msg ['login-logout (-> player .getName)])
             (later 0
               (.sendMessage player "Welcome to cloft2!")
-              (.sendMessage player "Minecraft→Lingr通知が行われるが、Lingr→Minecraft通知は未実装なので要注意"))))
+              #_(.sendMessage player "Minecraft→Lingr通知が行われるが、Lingr→Minecraft通知は未実装なので要注意"))))
         (defn PlayerInteractEvent [evt]
           (condp = (.getAction evt)
             org.bukkit.event.block.Action/LEFT_CLICK_AIR
