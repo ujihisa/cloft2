@@ -18,7 +18,7 @@
   `(remote-eval* ~nrepl-client '(do ~@exprs)))
 
 (defn -main [& args]
-  (with-open [nrepl-conn (repl/connect :host "mck.supermomonga.com" :port 7888)]
+  (with-open [nrepl-conn (repl/connect :host "0.0.0.0" :port 7888)]
     (let [nrepl-client (repl/client nrepl-conn 2000)]
       (remote-eval nrepl-client
         (ns cloft2.core
@@ -103,7 +103,7 @@
 
         (let [plugin-manager (Bukkit/getPluginManager)
               plugin (-> plugin-manager (.getPlugin "cloft2"))
-              ujm (Bukkit/getOfflinePlayer "ujm")]
+              ujm (Bukkit/getPlayer "ujm")]
           (prn (HandlerList/unregisterAll plugin))
           (doseq [[event-class event-f] table
                   :let [executer
