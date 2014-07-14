@@ -129,7 +129,7 @@
 (let [plugin-manager (Bukkit/getPluginManager)
       plugin (-> plugin-manager (.getPlugin "cloft2"))
       ujm (Bukkit/getPlayer "ujm")]
-  (prn (HandlerList/unregisterAll plugin))
+  (HandlerList/unregisterAll plugin)
   (doseq [[event-class event-f] table
           :let [executer
                 (reify org.bukkit.plugin.EventExecutor
@@ -142,7 +142,7 @@
       org.bukkit.event.EventPriority/NORMAL
       executer
       plugin))
-  (prn (-> ujm .getItemInHand (.setAmount 0))))
+  #_(prn (some-> ujm .getItemInHand (.setAmount 0))))
 
 [(.getName *ns*) 'SUCCESSFULLY-COMPLETED]
 ; vim: set lispwords+=later :
