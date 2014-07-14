@@ -13,6 +13,7 @@
     (let [nrepl-client (nrepl/client nrepl-conn 2000)]
       (doseq [file-path ["/home/ujihisa/git/cloft2/client/src/cloft2/lib.clj"
                          "/home/ujihisa/git/cloft2/client/src/cloft2/fast_dash.clj"
+                         "/home/ujihisa/git/cloft2/client/src/cloft2/super_jump.clj"
                          "/home/ujihisa/git/cloft2/client/src/cloft2/app.clj"]
               resp (nrepl/message
                      nrepl-client

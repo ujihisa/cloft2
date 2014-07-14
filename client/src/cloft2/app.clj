@@ -3,7 +3,8 @@
         [cloft2.lib :only (later sec)])
   (:require [clj-http.client]
             [clojure.string :as s]
-            [cloft2.fast-dash])
+            [cloft2.fast-dash]
+            [cloft2.sneaking-jump])
   (:import [org.bukkit Bukkit Material]
            [org.bukkit.event HandlerList]))
 (let [recent-msgs (atom [])]
@@ -30,6 +31,14 @@
 
 (defn PlayerToggleSprintEvent [evt]
   (cloft2.fast-dash/PlayerToggleSprintEvent evt))
+
+(defn PlayerToggleSneakEvent [evt]
+  (cloft2.sneaking-jump/PlayerToggleSneakEvent evt (-> evt .getPlayer)))
+
+(defn PlayerMoveEvent [evt]
+  (cloft2.sneaking-jump/PlayerMoveEvent evt (-> evt .getPlayer)))
+(defn EntityDamageByEntityEvent [evt]
+  (cloft2.sneaking-jump/EntityDamageByEntityEvent evt (-> evt .getEntity)) )
 
 (defn AsyncPlayerChatEvent [evt]
   (let [player (-> evt .getPlayer)
@@ -76,7 +85,13 @@
             org.bukkit.event.player.PlayerInteractEvent
             PlayerInteractEvent
             org.bukkit.event.player.PlayerToggleSprintEvent
-            PlayerToggleSprintEvent})
+            PlayerToggleSprintEvent
+            org.bukkit.event.player.PlayerToggleSneakEvent
+            PlayerToggleSneakEvent
+            org.bukkit.event.player.PlayerMoveEvent
+            PlayerMoveEvent
+            org.bukkit.event.entity.EntityDamageByEntityEvent
+            EntityDamageByEntityEvent})
 
 (let [plugin-manager (Bukkit/getPluginManager)
       plugin (-> plugin-manager (.getPlugin "cloft2"))
