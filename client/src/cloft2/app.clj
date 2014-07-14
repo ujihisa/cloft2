@@ -7,7 +7,8 @@
             [cloft2.sneaking-jump]
             [cloft2.safe-grass])
   (:import [org.bukkit Bukkit Material]
-           [org.bukkit.event HandlerList]))
+           [org.bukkit.event HandlerList]
+           [org.bukkit.inventory ItemStack]))
 
 (let [recent-msgs (atom [])]
   (defn post-lingr [msg & [msgtype]]
@@ -84,6 +85,28 @@
   (let [msg (<< "~(-> evt .getPlayer .getName) logged out.")]
     (post-lingr msg ['login-logout (-> evt .getPlayer .getName)])))
 
+(defn BlockDamageEvent [evt]
+  (let [block (-> evt .getBlock)
+        player (-> evt .getPlayer)]
+    (let [spade (-> player .getItemInHand)]
+      (when (and (= Material/WOOD_SPADE (-> player .getItemInHand .getType))
+                 (#{Material/GRASS Material/DIRT Material/GRAVEL} (-> block .getType)))
+        (doseq [x (range -1 2)
+                y (range -1 2)
+                z (range -1 2)
+                :let [b (-> (doto (-> block .getLocation)
+                              (.add x y z))
+                          .getBlock)]
+                :when (#{Material/GRASS Material/DIRT Material/GRAVEL} (-> b .getType))]
+          (.breakNaturally b spade))
+        (-> spade (.setDurability (inc (.getDurability spade))))
+        (when (< (.getMaxDurability (Material/WOOD_SPADE))
+                 (.getDurability spade))
+          (let [new-value (dec (.getAmount spade))]
+            (if (= new-value 0)
+              (.setItemInHand player nil)
+              (.setAmount spade new-value))))))))
+
 (def table {org.bukkit.event.player.AsyncPlayerChatEvent
             AsyncPlayerChatEvent
             org.bukkit.event.player.PlayerLoginEvent
@@ -100,7 +123,8 @@
             PlayerMoveEvent
             org.bukkit.event.entity.EntityDamageEvent
             EntityDamageEvent
-            })
+            org.bukkit.event.block.BlockDamageEvent
+            BlockDamageEvent})
 
 (let [plugin-manager (Bukkit/getPluginManager)
       plugin (-> plugin-manager (.getPlugin "cloft2"))
@@ -118,7 +142,7 @@
       org.bukkit.event.EventPriority/NORMAL
       executer
       plugin))
-  ujm)
+  (prn (-> ujm .getItemInHand (.setAmount 0))))
 
 [(.getName *ns*) 'SUCCESSFULLY-COMPLETED]
 ; vim: set lispwords+=later :

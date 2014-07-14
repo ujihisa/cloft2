@@ -50,5 +50,5 @@
     (swap! during-knockback conj entity)
     (later (sec 1)
       (swap! during-knockback disj entity))))
-
+[(.getName *ns*) 'SUCCESSFULLY-COMPLETED]
 ; vim: lispwords+=later :
