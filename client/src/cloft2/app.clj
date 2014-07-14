@@ -4,9 +4,11 @@
   (:require [clj-http.client]
             [clojure.string :as s]
             [cloft2.fast-dash]
-            [cloft2.sneaking-jump])
+            [cloft2.sneaking-jump]
+            [cloft2.safe-grass])
   (:import [org.bukkit Bukkit Material]
            [org.bukkit.event HandlerList]))
+
 (let [recent-msgs (atom [])]
   (defn post-lingr [msg & [msgtype]]
     #_(prn '= msgtype
@@ -37,8 +39,10 @@
 
 (defn PlayerMoveEvent [evt]
   (cloft2.sneaking-jump/PlayerMoveEvent evt (-> evt .getPlayer)))
-(defn EntityDamageByEntityEvent [evt]
-  (cloft2.sneaking-jump/EntityDamageByEntityEvent evt (-> evt .getEntity)) )
+
+(defn EntityDamageEvent [evt]
+  (when (= org.bukkit.event.entity.EntityDamageEvent (.getClass evt))
+    (cloft2.safe-grass/EntityDamageEvent evt (-> evt .getEntity))))
 
 (defn AsyncPlayerChatEvent [evt]
   (let [player (-> evt .getPlayer)
@@ -59,6 +63,7 @@
         postmsg (<< "<~(-> player .getName)> ~{msg}")]
     (.setMessage evt msg)
     (post-lingr postmsg)))
+
 (defn PlayerLoginEvent [evt]
   (let [player (-> evt .getPlayer)
         msg (<< "~(-> player .getName) logged in.")]
@@ -66,16 +71,19 @@
     (later 0
       (.sendMessage player "Welcome to cloft2!")
       (.sendMessage player "Dynmap http://mck.supermomonga.com:8123/"))))
+
 (defn PlayerInteractEvent [evt]
-  (condp = (.getAction evt)
+  #_(condp = (.getAction evt)
     org.bukkit.event.block.Action/LEFT_CLICK_AIR
     #_(let [msg (<< "~(-> evt .getPlayer .getName) clicked air at ~(-> evt .getPlayer .getLocation)")]
     (prn msg)
     (prn (post-lingr msg)))
     (prn :else (.getAction evt))))
+
 (defn PlayerQuitEvent [evt]
   (let [msg (<< "~(-> evt .getPlayer .getName) logged out.")]
     (post-lingr msg ['login-logout (-> evt .getPlayer .getName)])))
+
 (def table {org.bukkit.event.player.AsyncPlayerChatEvent
             AsyncPlayerChatEvent
             org.bukkit.event.player.PlayerLoginEvent
@@ -90,8 +98,9 @@
             PlayerToggleSneakEvent
             org.bukkit.event.player.PlayerMoveEvent
             PlayerMoveEvent
-            org.bukkit.event.entity.EntityDamageByEntityEvent
-            EntityDamageByEntityEvent})
+            org.bukkit.event.entity.EntityDamageEvent
+            EntityDamageEvent
+            })
 
 (let [plugin-manager (Bukkit/getPluginManager)
       plugin (-> plugin-manager (.getPlugin "cloft2"))
@@ -110,5 +119,6 @@
       executer
       plugin))
   ujm)
+
 [(.getName *ns*) 'SUCCESSFULLY-COMPLETED]
 ; vim: set lispwords+=later :
