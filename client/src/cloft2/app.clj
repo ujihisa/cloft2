@@ -1,11 +1,12 @@
 (ns cloft2.core
   (:use [clojure.core.strint :only (<<)])
   (:require [clj-http.client]
-            [clojure.string :as s])
+            [clojure.string :as s]
+            [cloft2.super-dash])
   (:import [org.bukkit Bukkit Material]
            [org.bukkit.event HandlerList]))
 (let [recent-msgs (atom [])]
-  (defn post [msg & [msgtype]]
+  (defn post-lingr [msg & [msgtype]]
     #_(prn '= msgtype
     (-> @recent-msgs first first)
     (-> @recent-msgs second first))
@@ -35,22 +36,8 @@
 (defmacro later [tick & exps]
   `(later* ~tick (fn [] ~@exps)))
 
-(def dash-id-table (atom {}))
 (defn PlayerToggleSprintEvent [evt]
-  (let [player (-> evt .getPlayer)]
-    (if (and (.isSprinting evt) (not (.getPassenger player)))
-      (if (= Material/SAND (-> player .getLocation .clone (.add 0 -1 0) .getBlock .getType))
-        (.setCancelled evt true)
-        (let [dash-id (rand)]
-          (.setWalkSpeed player 0.4)
-          (swap! dash-id-table assoc player dash-id)
-          (later (sec 4)
-                 (when (= dash-id (@dash-id-table player))
-                   #_(helper/smoke-effect (.getLocation player))
-                   (.setWalkSpeed player 0.6)))))
-      (do
-        (.setWalkSpeed player 0.2)
-        (swap! dash-id-table assoc player nil)))))
+  (cloft2.super-dash/PlayerToggleSprintEvent evt))
 
 (defn AsyncPlayerChatEvent [evt]
   (let [player (-> evt .getPlayer)
@@ -70,11 +57,11 @@
               (s/replace #"^!list$" (<< "!list\n~(s/join \" \" (map #(.getName %) (Bukkit/getOnlinePlayers)))")))
         postmsg (<< "<~(-> player .getName)> ~{msg}")]
     (.setMessage evt msg)
-    (post postmsg)))
+    (post-lingr postmsg)))
 (defn PlayerLoginEvent [evt]
   (let [player (-> evt .getPlayer)
         msg (<< "~(-> player .getName) logged in.")]
-    (post msg ['login-logout (-> player .getName)])
+    (post-lingr msg ['login-logout (-> player .getName)])
     (later 0
            (.sendMessage player "Welcome to cloft2!")
            (.sendMessage player "Dynmap http://mck.supermomonga.com:8123/"))))
@@ -83,11 +70,11 @@
     org.bukkit.event.block.Action/LEFT_CLICK_AIR
     #_(let [msg (<< "~(-> evt .getPlayer .getName) clicked air at ~(-> evt .getPlayer .getLocation)")]
     (prn msg)
-    (prn (post msg)))
+    (prn (post-lingr msg)))
     (prn :else (.getAction evt))))
 (defn PlayerQuitEvent [evt]
   (let [msg (<< "~(-> evt .getPlayer .getName) logged out.")]
-    (post msg ['login-logout (-> evt .getPlayer .getName)])))
+    (post-lingr msg ['login-logout (-> evt .getPlayer .getName)])))
 (def table {org.bukkit.event.player.AsyncPlayerChatEvent
             AsyncPlayerChatEvent
             org.bukkit.event.player.PlayerLoginEvent
@@ -116,5 +103,6 @@
       executer
       plugin))
   ujm)
-'SUCCESSFULLY-COMPLETED
+
+[(.getName *ns*) 'SUCCESSFULLY-COMPLETED]
 ; vim: set lispwords+=later :

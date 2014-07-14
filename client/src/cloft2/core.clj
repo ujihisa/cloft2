@@ -11,9 +11,11 @@
 (defn -main [& args]
   (with-open [nrepl-conn (nrepl/connect :host "0.0.0.0" :port 7888)]
     (let [nrepl-client (nrepl/client nrepl-conn 2000)]
-      (doseq [resp (nrepl/message nrepl-client
-                                  {:op "load-file" :file (slurp "/home/ujihisa/git/cloft2/client/src/cloft2/app.clj")
-                                   :file-path "/home/ujihisa/git/cloft2/client/src/cloft2/app.clj" })]
+      (doseq [file-path ["/home/ujihisa/git/cloft2/client/src/cloft2/super_dash.clj"
+                         "/home/ujihisa/git/cloft2/client/src/cloft2/app.clj"]
+              resp (nrepl/message
+                     nrepl-client
+                     {:op "load-file" :file (slurp file-path) :file-path file-path})]
         (try
           (condp #(get %2 %1) resp
             :out (println (:out resp))
