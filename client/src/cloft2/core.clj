@@ -81,7 +81,7 @@
             (post msg ['login-logout (-> player .getName)])
             (later 0
               (.sendMessage player "Welcome to cloft2!")
-              #_(.sendMessage player "Minecraft→Lingr通知が行われるが、Lingr→Minecraft通知は未実装なので要注意"))))
+              (.sendMessage player "Dynmap http://mck.supermomonga.com:8123/"))))
         (defn PlayerInteractEvent [evt]
           (condp = (.getAction evt)
             org.bukkit.event.block.Action/LEFT_CLICK_AIR
