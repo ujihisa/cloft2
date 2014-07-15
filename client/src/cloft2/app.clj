@@ -5,7 +5,8 @@
             [clojure.string :as s]
             [cloft2.fast-dash]
             [cloft2.sneaking-jump]
-            [cloft2.safe-grass])
+            [cloft2.safe-grass]
+            [cloft2.kickory])
   (:import [org.bukkit Bukkit Material]
            [org.bukkit.event HandlerList]
            [org.bukkit.inventory ItemStack]))
@@ -107,6 +108,9 @@
               (.setItemInHand player nil)
               (.setAmount spade new-value))))))))
 
+(defn BlockBreakEvent [evt]
+  (cloft2.kickory/BlockBreakEvent evt (-> evt .getBlock)))
+
 (def table {org.bukkit.event.player.AsyncPlayerChatEvent
             AsyncPlayerChatEvent
             org.bukkit.event.player.PlayerLoginEvent
@@ -124,7 +128,9 @@
             org.bukkit.event.entity.EntityDamageEvent
             EntityDamageEvent
             org.bukkit.event.block.BlockDamageEvent
-            BlockDamageEvent})
+            BlockDamageEvent
+            org.bukkit.event.block.BlockBreakEvent
+            BlockBreakEvent})
 
 (let [plugin-manager (Bukkit/getPluginManager)
       plugin (-> plugin-manager (.getPlugin "cloft2"))
