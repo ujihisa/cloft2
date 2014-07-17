@@ -46,6 +46,12 @@
   (when (= org.bukkit.event.entity.EntityDamageEvent (.getClass evt))
     (cloft2.safe-grass/EntityDamageEvent evt (-> evt .getEntity))))
 
+(defn PlayerDeathEvent [evt]
+  ; TODO
+  (when (= org.bukkit.event.entity.PlayerDeathEvent (.getClass evt))
+    (let [player (-> evt .getEntity)]
+      (post-lingr (-> evt .getDeathMessage)))))
+
 (defn AsyncPlayerChatEvent [evt]
   (let [player (-> evt .getPlayer)
         msg (-> evt .getMessage
@@ -130,7 +136,9 @@
             org.bukkit.event.block.BlockDamageEvent
             BlockDamageEvent
             org.bukkit.event.block.BlockBreakEvent
-            BlockBreakEvent})
+            BlockBreakEvent
+            org.bukkit.event.entity.PlayerDeathEvent
+            PlayerDeathEvent})
 
 (let [plugin-manager (Bukkit/getPluginManager)
       plugin (-> plugin-manager (.getPlugin "cloft2"))
