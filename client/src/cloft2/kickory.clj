@@ -2,7 +2,8 @@
   (:use [clojure.core.strint :only (<<)]
         [cloft2.lib :only (later sec)])
   (:require [clj-http.client]
-            [clojure.string :as s])
+            [clojure.string :as s]
+            [cloft2.lib :as l])
   (:import [org.bukkit Bukkit Material Location]
            [org.bukkit.block Block]
            [org.bukkit.util Vector]
@@ -18,34 +19,16 @@
   #{Material/IRON_AXE Material/WOOD_AXE Material/STONE_AXE
     Material/DIAMOND_AXE Material/GOLD_AXE})
 
-(defn- add-loc [^Location loc x y z]
-  (doto (-> loc .clone) (.add x y z)))
-
 ; TODO move it to lib
 (defn- block-above [^Location block]
-  (-> block .getLocation (add-loc 0 1 0) .getBlock))
-
-(defn- neighbours [^Block block]
-  (for [x (range -1 2)
-        z (range -1 2)
-        :when (not (= x 0 z))]
-    (-> block .getLocation (add-loc x 0 z) .getBlock)))
-
-(defn- fall [^Block block]
-  (let [world (-> block .getWorld)
-        loc (-> block .getLocation)
-        material (-> block .getType)
-        data (-> block .getData)]
-    (-> block (.setType Material/AIR))
-    (-> block (.setData 0))
-    (-> world (.spawnFallingBlock loc material data))))
+  (-> block .getLocation (l/add-loc 0 1 0) .getBlock))
 
 (defn- kickory [^Block block limit]
   (when (< 0 limit)
-    (doseq [b (conj (neighbours block) block)
+    (doseq [b (conj (l/neighbours block) block)
             :when (#{Material/LOG Material/LOG_2} (-> b .getType))]
       (if (= 0 (rand-int 2))
-        (let [falling (fall b)]
+        (let [falling (l/fall b)]
           (later 0
             (.setVelocity falling (Vector. 0.1 0.3 0.1))))
         (.breakNaturally b (ItemStack. Material/WOOD_AXE 1)))
@@ -57,7 +40,7 @@
   (let [player (-> evt .getPlayer)]
     (when (and
             (#{Material/LOG Material/LOG_2} (-> block .getType))
-            (every? #(-> % .getType .isSolid not) (neighbours block)))
+            (every? #(-> % .getType .isSolid not) (l/neighbours block)))
       (kickory (block-above block) 100))))
 
 [(.getName *ns*) 'SUCCESSFULLY-COMPLETED]

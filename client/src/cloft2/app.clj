@@ -6,10 +6,12 @@
             [cloft2.fast-dash]
             [cloft2.sneaking-jump]
             [cloft2.safe-grass]
-            [cloft2.kickory])
+            [cloft2.kickory]
+            [cloft2.lib :as l])
   (:import [org.bukkit Bukkit Material]
            [org.bukkit.event HandlerList]
-           [org.bukkit.inventory ItemStack]))
+           [org.bukkit.inventory ItemStack]
+           [org.bukkit.util Vector]))
 
 (let [recent-msgs (atom [])]
   (defn post-lingr [msg & [msgtype]]
@@ -58,6 +60,7 @@
               (s/replace #"benri" "便利")
               (s/replace #"[fh]u[bv]en" "不便")
               (s/replace #"wa-i" "わーい[^。^]")
+              (s/replace #"kawaisou" "かわいそう。・°°・(((p(≧□≦)q)))・°°・。ｳﾜｰﾝ!!")
               (s/replace #"dropper|ドロッパ" "泥(・ω・)ﾉ■ ｯﾊﾟ")
               (s/replace #"hopper|ホッパ" "穂(・ω・)ﾉ■ ｯﾊﾟ")
               (s/replace #"\bkiken" "危険")
@@ -115,13 +118,34 @@
               (.setAmount spade new-value))))))))
 
 (defn BlockBreakEvent [evt]
-  (cloft2.kickory/BlockBreakEvent evt (-> evt .getBlock)))
+  (cloft2.kickory/BlockBreakEvent evt (-> evt .getBlock))
+  (let [block (-> evt .getBlock)]
+    (when (and (= Material/COAL_ORE (.getType block))
+               #_(= Material/DIAMOND_PICKAXE (-> evt .getPlayer .getItemInHand .getType)))
+      (.setCancelled evt true)
+      (.dropItemNaturally (-> block .getLocation .getWorld)
+                          (-> block .getLocation) (ItemStack. Material/COAL_ORE 1))
+      (.setType block Material/FIRE)
+      (.setData block 0)
+      (let [f (l/fall block)]
+        (.setDropItem f false)
+        (later 0
+          (.setVelocity f (Vector. 0.1 0.3 0.1)))))))
 
 (defn BlockPhysicsEvent [evt]
-  #_(let [block (-> evt .getBlock)]
-    (when (#{Material/LEAVES Material/LEAVES_2} (-> block .getType))
-      ;TODO borrow fall function
-      (fall block))))
+  (let [block (-> evt .getBlock)]
+    (when (and (#{Material/LEAVES Material/LEAVES_2} (-> block .getType))
+               (.isEmpty (l/block-below block))
+               (every? #(not (#{Material/LOG Material/LOG_2} (.getType %)))
+                       (l/neighbours block)))
+      #_(.breakNaturally block)
+      #_(.setType block Material/FIRE)
+      #_(.setData block 0)
+      (let [f (l/fall block) #_(.spawnEntity (-> block .getLocation .getWorld) (.getLocation block) org.bukkit.entity.EntityType/BOAT)]
+        (later 0
+          (.setVelocity f (Vector. (rand-nth [0.5 0.0 -0.5])
+                                   1.5
+                                   (rand-nth [0.5 0.0 -0.5]))))))))
 
 (def table {org.bukkit.event.player.AsyncPlayerChatEvent
             AsyncPlayerChatEvent
