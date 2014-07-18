@@ -117,6 +117,12 @@
 (defn BlockBreakEvent [evt]
   (cloft2.kickory/BlockBreakEvent evt (-> evt .getBlock)))
 
+(defn BlockPhysicsEvent [evt]
+  #_(let [block (-> evt .getBlock)]
+    (when (#{Material/LEAVES Material/LEAVES_2} (-> block .getType))
+      ;TODO borrow fall function
+      (fall block))))
+
 (def table {org.bukkit.event.player.AsyncPlayerChatEvent
             AsyncPlayerChatEvent
             org.bukkit.event.player.PlayerLoginEvent
@@ -138,7 +144,9 @@
             org.bukkit.event.block.BlockBreakEvent
             BlockBreakEvent
             org.bukkit.event.entity.PlayerDeathEvent
-            PlayerDeathEvent})
+            PlayerDeathEvent
+            org.bukkit.event.block.BlockPhysicsEvent
+            BlockPhysicsEvent})
 
 (let [plugin-manager (Bukkit/getPluginManager)
       plugin (-> plugin-manager (.getPlugin "cloft2"))
