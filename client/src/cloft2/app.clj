@@ -132,6 +132,9 @@
         (later 0
           (.setVelocity f (Vector. 0.1 0.3 0.1)))))))
 
+(defn drop-item [loc itemstack]
+  (.dropItemNaturally (.getWorld loc) loc itemstack))
+
 (defn BlockPhysicsEvent [evt]
   (let [block (-> evt .getBlock)]
     (when (and (#{Material/LEAVES Material/LEAVES_2} (-> block .getType))
@@ -141,10 +144,19 @@
       #_(.breakNaturally block)
       #_(.setType block Material/FIRE)
       #_(.setData block 0)
+      ; (prn 'block block 'species (-> block .getState .getData .getSpecies))
+      (let [sapling (ItemStack. Material/SAPLING 1 (short 0) (.getData block))
+            stick (ItemStack. Material/STICK 1)
+            apple (ItemStack. Material/APPLE 1)
+            golden-apple (ItemStack. Material/APPLE 1)
+            itemstack (if (= 0 (.getData block))
+                        (rand-nth [sapling apple apple golden-apple stick stick stick stick])
+                        (rand-nth [sapling sapling stick stick stick stick stick stick]))]
+        (drop-item (-> block .getLocation) itemstack))
       (let [f (l/fall block) #_(.spawnEntity (-> block .getLocation .getWorld) (.getLocation block) org.bukkit.entity.EntityType/BOAT)]
         (later 0
           (.setVelocity f (Vector. (rand-nth [0.5 0.0 -0.5])
-                                   1.5
+                                   (rand-nth [0.5 1.0 1.5])
                                    (rand-nth [0.5 0.0 -0.5]))))))))
 
 (def table {org.bukkit.event.player.AsyncPlayerChatEvent
