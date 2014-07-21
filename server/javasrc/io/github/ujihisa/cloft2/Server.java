@@ -11,7 +11,9 @@ public final class Server extends JavaPlugin implements Listener {
       Thread.currentThread().setContextClassLoader(Server.class.getClassLoader());
       eval("(use '[clojure.tools.nrepl.server :only (start-server stop-server)])" +
           "(def server (start-server :port 7888))" +
-          "(prn 'nrepl-server server)");
+          "(prn 'nrepl-server server)" +
+          // require is for eager loading before changing classloader
+          "(require '[clojure.core.strint] '[clj-http.client])");
     } catch (Exception e) {
       e.printStackTrace();
       System.exit(1); // TODO
