@@ -13,9 +13,9 @@
       (when (= Material/GRASS (-> block-below .getType))
         (-> evt (.setCancelled true))
         (-> block-below (.setType Material/DIRT))
-        (.setVelocity entity (let [v (.getVelocity entity)]
-                               (.setY v (+ 0.3 (.getY v)))
-                               v))))
+        (-> entity (.setVelocity (let [v (.getVelocity entity)]
+                                   (.setY v (+ 0.3 (.getY v)))
+                                   v)))))
     nil))
 
 [(.getName *ns*) 'SUCCESSFULLY-COMPLETED]
