@@ -7,7 +7,8 @@
             [cloft2.fast-dash]
             [cloft2.sneaking-jump]
             [cloft2.safe-grass]
-            [cloft2.kickory])
+            [cloft2.kickory]
+            [cloft2.coal])
   (:import [org.bukkit Bukkit Material]
            [org.bukkit.event HandlerList]
            [org.bukkit.inventory ItemStack]
@@ -96,23 +97,9 @@
               (.setAmount spade new-value))))))))
 
 (defn BlockBreakEvent [evt]
-  (cloft2.kickory/BlockBreakEvent evt (-> evt .getBlock))
-  (let [block (-> evt .getBlock)
-        player (-> evt .getPlayer)]
-    (when (and (= Material/COAL_ORE (.getType block))
-               #_(= Material/DIAMOND_PICKAXE (-> evt .getPlayer .getItemInHand .getType)))
-      (.setCancelled evt true)
-      (l/drop-item (-> block .getLocation) (ItemStack. Material/COAL_ORE 1))
-      (l/block-set block Material/AIR 0)
-      (later (sec 1)
-        (when (= Material/AIR (.getType block))
-          (l/block-set block Material/FIRE 0)
-          (let [f (l/fall block)]
-            (.setDropItem f false)
-            (later 0
-              (l/set-velocity f
-                              (- (rand) 0.5) (* 0.5 (rand)) (- (rand) 0.5)))))))))
-(org.bukkit.Bukkit/broadcastMessage "deployed!")
+  (let [block (-> evt .getBlock)]
+    (cloft2.kickory/BlockBreakEvent evt block)
+    (cloft2.coal/BlockBreakEvent evt block)))
 
 (defn drop-item [loc itemstack]
   (.dropItemNaturally (.getWorld loc) loc itemstack))
