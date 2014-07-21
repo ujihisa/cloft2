@@ -97,17 +97,22 @@
 
 (defn BlockBreakEvent [evt]
   (cloft2.kickory/BlockBreakEvent evt (-> evt .getBlock))
-  (let [block (-> evt .getBlock)]
+  (let [block (-> evt .getBlock)
+        player (-> evt .getPlayer)]
     (when (and (= Material/COAL_ORE (.getType block))
                #_(= Material/DIAMOND_PICKAXE (-> evt .getPlayer .getItemInHand .getType)))
       (.setCancelled evt true)
       (l/drop-item (-> block .getLocation) (ItemStack. Material/COAL_ORE 1))
-      (l/block-set block Material/FIRE 0)
-      (let [f (l/fall block)]
-        (.setDropItem f false)
-        (later 0
-          (l/set-velocity f
-                          (- (rand) 0.5) (rand) (- (rand) 0.5)))))))
+      (l/block-set block Material/AIR 0)
+      (later (sec 1)
+        (when (= Material/AIR (.getType block))
+          (l/block-set block Material/FIRE 0)
+          (let [f (l/fall block)]
+            (.setDropItem f false)
+            (later 0
+              (l/set-velocity f
+                              (- (rand) 0.5) (* 0.5 (rand)) (- (rand) 0.5)))))))))
+(org.bukkit.Bukkit/broadcastMessage "deployed!")
 
 (defn drop-item [loc itemstack]
   (.dropItemNaturally (.getWorld loc) loc itemstack))
@@ -136,6 +141,13 @@
                                    (rand-nth [0.5 1.0 1.5])
                                    (rand-nth [0.5 0.0 -0.5]))))))))
 
+(defn EntityCombustEvent [evt]
+  #_(let [entity (.getEntity evt)]
+    (when (and (instance? org.bukkit.entity.Item entity)
+               (= Material/COAL_ORE (-> entity .getItemStack .getType)))
+      (.setDuration evt 0)
+      (.setCancelled evt true))))
+
 (def table {org.bukkit.event.player.AsyncPlayerChatEvent
             AsyncPlayerChatEvent
             org.bukkit.event.player.PlayerLoginEvent
@@ -159,7 +171,9 @@
             org.bukkit.event.entity.PlayerDeathEvent
             PlayerDeathEvent
             org.bukkit.event.block.BlockPhysicsEvent
-            BlockPhysicsEvent})
+            BlockPhysicsEvent
+            org.bukkit.event.entity.EntityCombustEvent
+            EntityCombustEvent})
 
 (let [plugin-manager (Bukkit/getPluginManager)
       plugin (-> plugin-manager (.getPlugin "cloft2"))
