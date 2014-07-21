@@ -1,6 +1,9 @@
 (ns cloft2.lib
   (:import [org.bukkit Bukkit Material Location]
-           [org.bukkit.block Block]))
+           [org.bukkit.block Block]
+           [org.bukkit.entity Entity]
+           [org.bukkit.inventory ItemStack]
+           [org.bukkit.util Vector]))
 
 (let [recent-msgs (atom [])]
   (defn post-lingr [msg & [msgtype]]
@@ -52,5 +55,15 @@
         z (range -1 2)
         :when (not (= x 0 z))]
     (-> block .getLocation (add-loc x 0 z) .getBlock)))
+
+(defn drop-item [^Location loc ^ItemStack itemstack]
+  (.dropItemNaturally (.getWorld loc) loc itemstack))
+
+(defn block-set [^Block block ^Material material ^Byte data]
+  (.setType block material)
+  (.setData block data))
+
+(defn set-velocity [^Entity entity ^Double x ^Double y ^Double z]
+  (.setVelocity entity (Vector. x y z)))
 
 [(.getName *ns*) 'SUCCESSFULLY-COMPLETED]

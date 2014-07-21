@@ -101,14 +101,13 @@
     (when (and (= Material/COAL_ORE (.getType block))
                #_(= Material/DIAMOND_PICKAXE (-> evt .getPlayer .getItemInHand .getType)))
       (.setCancelled evt true)
-      (.dropItemNaturally (-> block .getLocation .getWorld)
-                          (-> block .getLocation) (ItemStack. Material/COAL_ORE 1))
-      (.setType block Material/FIRE)
-      (.setData block 0)
+      (l/drop-item (-> block .getLocation) (ItemStack. Material/COAL_ORE 1))
+      (l/block-set block Material/FIRE 0)
       (let [f (l/fall block)]
         (.setDropItem f false)
         (later 0
-          (.setVelocity f (Vector. 0.1 0.3 0.1)))))))
+          (l/set-velocity f
+                          (- (rand) 0.5) (rand) (- (rand) 0.5)))))))
 
 (defn drop-item [loc itemstack]
   (.dropItemNaturally (.getWorld loc) loc itemstack))
