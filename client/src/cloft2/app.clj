@@ -3,37 +3,15 @@
         [cloft2.lib :only (later sec)])
   (:require [clj-http.client]
             [clojure.string :as s]
+            [cloft2.lib :as l]
             [cloft2.fast-dash]
             [cloft2.sneaking-jump]
             [cloft2.safe-grass]
-            [cloft2.kickory]
-            [cloft2.lib :as l])
+            [cloft2.kickory])
   (:import [org.bukkit Bukkit Material]
            [org.bukkit.event HandlerList]
            [org.bukkit.inventory ItemStack]
            [org.bukkit.util Vector]))
-
-(let [recent-msgs (atom [])]
-  (defn post-lingr [msg & [msgtype]]
-    #_(prn '= msgtype
-    (-> @recent-msgs first first)
-    (-> @recent-msgs second first))
-    (when-not (and msgtype (= msgtype
-                              (-> @recent-msgs first first)
-                              (-> @recent-msgs second first)))
-      (swap! recent-msgs
-             (fn [orig msg]
-               (cons
-                 [msgtype msg]
-                 (if (< 10 (count orig)) (drop-last orig) orig)))
-             msg)
-      (clj-http.client/post
-        "http://lingr.com/api/room/say"
-        {:form-params
-         {:room "mcujm"
-          :bot 'sugoicraft
-          :text (str msg)
-          :bot_verifier "bb5060f31bc6e89018c55ac72d39d5ca6aca75c9"}}))))
 
 (defn PlayerToggleSprintEvent [evt]
   (cloft2.fast-dash/PlayerToggleSprintEvent evt))
@@ -52,7 +30,7 @@
   ; TODO
   (when (= org.bukkit.event.entity.PlayerDeathEvent (.getClass evt))
     (let [player (-> evt .getEntity)]
-      (post-lingr (-> evt .getDeathMessage)))))
+      (l/post-lingr (-> evt .getDeathMessage)))))
 
 (defn AsyncPlayerChatEvent [evt]
   (let [player (-> evt .getPlayer)
@@ -73,12 +51,12 @@
               (s/replace #"^!list$" (<< "!list\n~(s/join \" \" (map #(.getName %) (Bukkit/getOnlinePlayers)))")))
         postmsg (<< "<~(-> player .getName)> ~{msg}")]
     (.setMessage evt msg)
-    (post-lingr postmsg)))
+    (l/post-lingr postmsg)))
 
 (defn PlayerLoginEvent [evt]
   (let [player (-> evt .getPlayer)
         msg (<< "~(-> player .getName) logged in.")]
-    (post-lingr msg ['login-logout (-> player .getName)])
+    (l/post-lingr msg ['login-logout (-> player .getName)])
     (later 0
       (.sendMessage player "Welcome to cloft2!")
       (.sendMessage player "Dynmap http://mck.supermomonga.com:8123/"))))
@@ -88,12 +66,12 @@
     org.bukkit.event.block.Action/LEFT_CLICK_AIR
     #_(let [msg (<< "~(-> evt .getPlayer .getName) clicked air at ~(-> evt .getPlayer .getLocation)")]
     (prn msg)
-    (prn (post-lingr msg)))
+    (prn (l/post-lingr msg)))
     (prn :else (.getAction evt))))
 
 (defn PlayerQuitEvent [evt]
   (let [msg (<< "~(-> evt .getPlayer .getName) logged out.")]
-    (post-lingr msg ['login-logout (-> evt .getPlayer .getName)])))
+    (l/post-lingr msg ['login-logout (-> evt .getPlayer .getName)])))
 
 (defn BlockDamageEvent [evt]
   (let [block (-> evt .getBlock)

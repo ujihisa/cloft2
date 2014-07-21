@@ -2,6 +2,25 @@
   (:import [org.bukkit Bukkit Material Location]
            [org.bukkit.block Block]))
 
+(let [recent-msgs (atom [])]
+  (defn post-lingr [msg & [msgtype]]
+    (when-not (and msgtype (= msgtype
+                              (-> @recent-msgs first first)
+                              (-> @recent-msgs second first)))
+      (swap! recent-msgs
+             (fn [orig msg]
+               (cons
+                 [msgtype msg]
+                 (if (< 10 (count orig)) (drop-last orig) orig)))
+             msg)
+      (clj-http.client/post
+        "http://lingr.com/api/room/say"
+        {:form-params
+         {:room "mcujm"
+          :bot 'sugoicraft
+          :text (str msg)
+          :bot_verifier "bb5060f31bc6e89018c55ac72d39d5ca6aca75c9"}}))))
+
 (defn sec [n]
   (int (* 20 n)))
 
