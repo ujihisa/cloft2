@@ -9,7 +9,7 @@
             [cloft2.safe-grass]
             [cloft2.kickory]
             [cloft2.coal])
-  (:import [org.bukkit Bukkit Material]
+  (:import [org.bukkit Bukkit Material ChatColor]
            [org.bukkit.event HandlerList]
            [org.bukkit.inventory ItemStack]
            [org.bukkit.util Vector]))
@@ -33,7 +33,7 @@
     (let [player (-> evt .getEntity)]
       (l/post-lingr (-> evt .getDeathMessage)))))
 
-(defn AsyncPlayerChatEvent [evt]
+(defn AsyncPlayerChatEvent [^org.bukkit.event.player.AsyncPlayerChatEvent evt]
   (let [player (-> evt .getPlayer)
         msg (-> evt .getMessage
               (s/replace #"benri" "便利")
@@ -45,12 +45,13 @@
               (s/replace #"\bkiken" "危険")
               (s/replace #"\banzen" "安全")
               (s/replace #"wkwk" "((o(´∀｀)o))ﾜｸﾜｸ")
-              (s/replace #"unko" "unko大量生産!ブリブリo(-\"-;)o⌒ξ~ξ~ξ~ξ~ξ~ξ~ξ~ξ~")
+              (s/replace #"unko" (<< "unko大量生産!ブリブリo(-\"-;)o~{ChatColor/DARK_RED}⌒ξ~ξ~ξ~ξ~ξ~ξ~ξ~ξ~~{ChatColor/RESET}"))
               (s/replace #"dks" "溺((o(´o｀)o))死")
-              (s/replace #"tkm" "匠")
+              (s/replace #"tkm" (<< "~{ChatColor/MAGIC}匠~{ChatColor/RESET}"))
               (s/replace #"^!\?$", "!? な、なんだってーΩ ΩΩ")
-              (s/replace #"^!list$" (<< "!list\n~(s/join \" \" (map #(.getName %) (Bukkit/getOnlinePlayers)))")))
+              (s/replace #"^!list$" (<< "!list\n~{ChatColor/YELLOW}~(s/join \" \" (map #(.getName %) (Bukkit/getOnlinePlayers)))")))
         postmsg (<< "<~(-> player .getName)> ~{msg}")]
+    (.setFormat evt (<< "~{ChatColor/YELLOW}<%1$s>~{ChatColor/RESET} %2$s")); by default "<%1$s> %2$s"
     (.setMessage evt msg)
     (l/post-lingr postmsg)))
 
@@ -109,7 +110,8 @@
     (when (and (#{Material/LEAVES Material/LEAVES_2} (-> block .getType))
                (.isEmpty (l/block-below block))
                (every? #(not (#{Material/LOG Material/LOG_2} (.getType %)))
-                       (l/neighbours block)))
+                       (l/neighbours block))
+               (not (#{Material/LEAVES Material/LEAVES_2} (.getChangedType evt))))
       #_(.breakNaturally block)
       #_(.setType block Material/FIRE)
       #_(.setData block 0)

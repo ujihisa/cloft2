@@ -1,5 +1,5 @@
 (ns cloft2.lib
-  (:import [org.bukkit Bukkit Material Location]
+  (:import [org.bukkit Bukkit Material Location ChatColor]
            [org.bukkit.block Block]
            [org.bukkit.entity Entity]
            [org.bukkit.inventory ItemStack]
@@ -21,7 +21,7 @@
         {:form-params
          {:room "mcujm"
           :bot 'sugoicraft
-          :text (str msg)
+          :text (ChatColor/stripColor (str msg))
           :bot_verifier "bb5060f31bc6e89018c55ac72d39d5ca6aca75c9"}}))))
 
 (defn sec [n]
