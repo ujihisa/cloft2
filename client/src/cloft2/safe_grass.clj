@@ -13,8 +13,7 @@
       (when (= Material/GRASS (-> block-below .getType))
         (-> evt (.setCancelled true))
         (-> block-below (.setType Material/DIRT))))
-    #_(let [damager (-> evt .getDamager)])
-    nil #_(prn 'EntityDamageEvent :else evt)))
+    nil))
 
 [(.getName *ns*) 'SUCCESSFULLY-COMPLETED]
 ; vim: set lispwords+=later :
