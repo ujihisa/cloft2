@@ -14,7 +14,7 @@
         (-> evt (.setCancelled true))
         (-> block-below (.setType Material/DIRT))
         (.setVelocity entity (let [v (.getVelocity entity)]
-                               (.setY v (+ 0.1 (.getY v)))
+                               (.setY v (+ 100 (.getY v)))
                                v))))
     nil))
 
