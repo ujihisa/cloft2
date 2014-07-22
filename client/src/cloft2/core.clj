@@ -33,6 +33,11 @@
                          #{:id :session :status})
               (prn resp)))
           (catch Exception e (-> e .printStackTrace))
-          #_(finally (.close nrepl-conn))))))
+          #_(finally (.close nrepl-conn))))
+      (nrepl/message
+        nrepl-client
+        {:op "load-file"
+         :file (str `(l/post-lingr (str "Deployed by " ~(System/getenv "USER"))))
+         :file-path "dummy"})))
   (System/exit 0))
 ; vim: set lispwords+=remote-eval,later :
