@@ -4,7 +4,7 @@
 
 (def dash-id-table (atom {}))
 
-(defn PlayerToggleSprintEvent [evt]
+(defn PlayerToggleSprintEvent [^org.bukkit.event.player.PlayerToggleSprintEvent evt]
   (let [player (-> evt .getPlayer)]
     (if (and (.isSprinting evt) (not (.getPassenger player)))
       (if (= Material/SAND (-> player .getLocation .clone (.add 0 -1 0) .getBlock .getType))

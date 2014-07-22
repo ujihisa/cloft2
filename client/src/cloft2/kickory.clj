@@ -36,12 +36,36 @@
         (kickory b (dec limit))
         (kickory (block-above b) (dec limit))))))
 
-(defn BlockBreakEvent [evt ^Block block]
+(def block-breaking-tick? (ref false))
+(defn BlockBreakEvent [^org.bukkit.event.block.BlockBreakEvent evt ^Block block]
+  (dosync (ref-set block-breaking-tick? true))
   (let [player (-> evt .getPlayer)]
     (when (and
             (#{Material/LOG Material/LOG_2} (-> block .getType))
             (every? #(-> % .getType .isSolid not) (l/neighbours block)))
-      (kickory (block-above block) 100))))
+      (kickory (block-above block) 100)))
+  (later 0
+    (dosync (ref-set block-breaking-tick? false))))
+
+(defn BlockPhysicsEvent [^org.bukkit.event.block.BlockPhysicsEvent evt ^Block block]
+  (when (and (#{Material/LEAVES Material/LEAVES_2} (-> block .getType))
+             @block-breaking-tick?
+             (.isEmpty (l/block-below block))
+             (every? #(not (#{Material/LOG Material/LOG_2} (.getType %)))
+                     (l/neighbours block)))
+    (let [sapling (ItemStack. Material/SAPLING 1 (short 0) (.getData block))
+          stick (ItemStack. Material/STICK 1)
+          apple (ItemStack. Material/APPLE 1)
+          golden-apple (ItemStack. Material/APPLE 1)
+          itemstack (if (= 0 (.getData block))
+                      (rand-nth [sapling apple apple golden-apple stick stick stick stick])
+                      (rand-nth [sapling sapling stick stick stick stick stick stick]))]
+      (l/drop-item (-> block .getLocation) itemstack))
+    (let [f (l/fall block)]
+      (later 0
+        (.setVelocity f (Vector. (rand-nth [0.5 0.0 -0.5])
+                                 (inc (rand))
+                                 (rand-nth [0.5 0.0 -0.5])))))))
 
 [(.getName *ns*) 'SUCCESSFULLY-COMPLETED]
 ; vim: set lispwords+=later :

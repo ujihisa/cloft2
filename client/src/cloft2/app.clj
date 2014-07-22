@@ -17,17 +17,18 @@
 (defn PlayerToggleSprintEvent [^org.bukkit.event.player.PlayerToggleSprintEvent evt]
   (cloft2.fast-dash/PlayerToggleSprintEvent evt))
 
-(defn PlayerToggleSneakEvent [evt]
+(defn PlayerToggleSneakEvent [^org.bukkit.event.player.PlayerToggleSneakEvent evt]
   (cloft2.sneaking-jump/PlayerToggleSneakEvent evt (-> evt .getPlayer)))
 
-(defn PlayerMoveEvent [evt]
+(defn PlayerMoveEvent [^org.bukkit.event.player.PlayerMoveEvent evt]
   (cloft2.sneaking-jump/PlayerMoveEvent evt (-> evt .getPlayer)))
 
-(defn EntityDamageEvent [evt]
+(defn EntityDamageEvent [^org.bukkit.event.entity.EntityDamageEvent evt]
   (when (= org.bukkit.event.entity.EntityDamageEvent (.getClass evt))
+    (cloft2.sneaking-jump/EntityDamageEvent evt (-> evt .getEntity))
     (cloft2.safe-grass/EntityDamageEvent evt (-> evt .getEntity))))
 
-(defn EntityDeathEvent [evt]
+(defn EntityDeathEvent [^org.bukkit.event.entity.EntityDeathEvent evt]
   (if (= org.bukkit.event.entity.PlayerDeathEvent (.getClass evt))
     (let [player (-> evt .getEntity)]
       (l/post-lingr (-> evt .getDeathMessage)))
@@ -54,7 +55,7 @@
               (s/replace #"^!\?$", "!? な、なんだってーΩ ΩΩ")
               (s/replace #"^!list$" (<< "!list\n~{ChatColor/YELLOW}~(s/join \" \" (map #(.getName %) (Bukkit/getOnlinePlayers)))")))
         postmsg (<< "<~(-> player .getName)> ~{msg}")]
-    (.setFormat evt (<< "~{ChatColor/YELLOW}<%1$s>~{ChatColor/RESET} %2$s")); by default "<%1$s> %2$s"
+    (.setFormat evt (<< "~{ChatColor/AQUA}<%1$s>~{ChatColor/RESET} %2$s")); by default "<%1$s> %2$s"
     (.setMessage evt msg)
     (l/post-lingr postmsg)))
 
@@ -100,38 +101,14 @@
               (.setItemInHand player nil)
               (.setAmount spade new-value))))))))
 
-(defn BlockBreakEvent [evt]
+(defn BlockBreakEvent [^org.bukkit.event.block.BlockBreakEvent evt]
   (let [block (-> evt .getBlock)]
     (cloft2.kickory/BlockBreakEvent evt block)
     (cloft2.coal/BlockBreakEvent evt block)))
 
-(defn drop-item [loc itemstack]
-  (.dropItemNaturally (.getWorld loc) loc itemstack))
-
-(defn BlockPhysicsEvent [evt]
+(defn BlockPhysicsEvent [^org.bukkit.event.block.BlockPhysicsEvent evt]
   (let [block (-> evt .getBlock)]
-    (when (and (#{Material/LEAVES Material/LEAVES_2} (-> block .getType))
-               (.isEmpty (l/block-below block))
-               (every? #(not (#{Material/LOG Material/LOG_2} (.getType %)))
-                       (l/neighbours block))
-               (not (#{Material/LEAVES Material/LEAVES_2} (.getChangedType evt))))
-      #_(.breakNaturally block)
-      #_(.setType block Material/FIRE)
-      #_(.setData block 0)
-      ; (prn 'block block 'species (-> block .getState .getData .getSpecies))
-      (let [sapling (ItemStack. Material/SAPLING 1 (short 0) (.getData block))
-            stick (ItemStack. Material/STICK 1)
-            apple (ItemStack. Material/APPLE 1)
-            golden-apple (ItemStack. Material/APPLE 1)
-            itemstack (if (= 0 (.getData block))
-                        (rand-nth [sapling apple apple golden-apple stick stick stick stick])
-                        (rand-nth [sapling sapling stick stick stick stick stick stick]))]
-        (drop-item (-> block .getLocation) itemstack))
-      (let [f (l/fall block) #_(.spawnEntity (-> block .getLocation .getWorld) (.getLocation block) org.bukkit.entity.EntityType/BOAT)]
-        (later 0
-          (.setVelocity f (Vector. (rand-nth [0.5 0.0 -0.5])
-                                   (rand-nth [0.5 1.0 1.5])
-                                   (rand-nth [0.5 0.0 -0.5]))))))))
+    (cloft2.kickory/BlockPhysicsEvent evt block)))
 
 (defn EntityCombustEvent [evt]
   #_(let [entity (.getEntity evt)]

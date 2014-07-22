@@ -4,9 +4,10 @@
   (:require [cloft2.lib :as l])
   (:import [org.bukkit Bukkit Material]
            [org.bukkit.event HandlerList]
-           [org.bukkit.event.entity EntityDamageEvent$DamageCause]))
+           [org.bukkit.event.entity EntityDamageEvent$DamageCause]
+           [org.bukkit.entity Entity]))
 
-(defn EntityDamageEvent [evt entity]
+(defn EntityDamageEvent [^org.bukkit.event.entity.EntityDamageEvent evt ^Entity entity]
   (condp = (.getCause evt)
     EntityDamageEvent$DamageCause/FALL
     (let [block-below (l/block-below (-> entity .getLocation .getBlock))]

@@ -5,7 +5,7 @@
 
 (def player-sneak-counter (ref {}))
 
-(defn PlayerToggleSneakEvent [evt player]
+(defn PlayerToggleSneakEvent [^org.bukkit.event.player.PlayerToggleSneakEvent evt ^Player player]
   (when (.isSneaking evt)
     (dosync
       (ref-set
@@ -29,7 +29,7 @@
 
 (def during-knockback (atom #{}))
 (def on-ground (atom #{}))
-(defn PlayerMoveEvent [evt player]
+(defn PlayerMoveEvent [^org.bukkit.event.player.PlayerMoveEvent evt ^Player player]
   (when (and (.isSneaking player)
              (@on-ground player)
              (not (@during-knockback player))
@@ -45,10 +45,11 @@
     (when (@on-ground player) (swap! on-ground disj player))))
 
 ; only to give information to move event that if it was triggered as knockback or not.
-(defn EntityDamageByEntityEvent [evt entity]
+(defn EntityDamageEvent [^org.bukkit.event.entity.EntityDamageEvent evt entity]
   (when (instance? Player entity)
     (swap! during-knockback conj entity)
     (later (sec 1)
       (swap! during-knockback disj entity))))
+
 [(.getName *ns*) 'SUCCESSFULLY-COMPLETED]
 ; vim: lispwords+=later :
