@@ -9,7 +9,7 @@
   `(remote-eval* ~nrepl-client '(do ~@exprs)))
 
 (defn -main [& args]
-  (with-open [nrepl-conn (nrepl/connect :host "0.0.0.0" :port 7888)]
+  (with-open [nrepl-conn (nrepl/connect :host "localhost" :port 7888)]
     (let [nrepl-client (nrepl/client nrepl-conn 2000)]
       (doseq [:let [basedir (System/getenv "PWD")]
               file-path* ["src/cloft2/lib.clj"
