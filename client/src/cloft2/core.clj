@@ -1,7 +1,6 @@
 (ns cloft2.core
   (:require [clojure.string :as s]
-            [clojure.tools.nrepl :as nrepl])
-  (:import [org.bukkit Bukkit]))
+            [clojure.tools.nrepl :as nrepl]))
 
 #_(defn remote-eval* [nrepl-client expr]
   )
@@ -38,7 +37,7 @@
       (nrepl/message
         nrepl-client
         {:op "load-file"
-         :file (str `(do (ns cloft2.dummy (:require [cloft2.lib]))
+         :file (str `(do (ns cloft2.dummy (:require [cloft2.lib]) (:import [org.bukkit Bukkit]))
                          (let [msg (str "Deployed by " ~(System/getenv "USER"))]
                            (cloft2.lib/post-lingr msg)
                            (Bukkit/broadcastMessage msg))))
