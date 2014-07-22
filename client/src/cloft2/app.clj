@@ -104,7 +104,7 @@
               (.setAmount spade new-value))))))))
 
 (defn BlockBreakEvent [^org.bukkit.event.block.BlockBreakEvent evt]
-  (prn 'block-break-event evt)
+  #_(prn 'block-break-event evt)
   (let [block (-> evt .getBlock)]
     (cloft2.kickory/BlockBreakEvent evt block)
     (cloft2.coal/BlockBreakEvent evt block)))

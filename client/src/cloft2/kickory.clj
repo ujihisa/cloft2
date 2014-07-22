@@ -72,7 +72,7 @@
       (let [loc (.getLocation entity)]
         (condp > (rand-int 100)
           1 (l/drop-item loc (ItemStack. Material/APPLE 1))
-          2 (l/drop-item loc (ItemStack. Material/COAL 1 0 1))
+          2 (l/drop-item loc (ItemStack. Material/COAL 1 (short 0) (byte 1)))
           4 (l/block-set (.getBlock loc) Material/SAPLING (.getBlockData entity))
           20 (l/drop-item loc (ItemStack. Material/STICK 1))
           50 (.setCancelled evt false) ; LEAVES
