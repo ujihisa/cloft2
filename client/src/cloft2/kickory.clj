@@ -8,7 +8,7 @@
            [org.bukkit.block Block]
            [org.bukkit.util Vector]
            [org.bukkit.event HandlerList]
-           [org.bukkit.entity FallingBlock]
+           [org.bukkit.entity FallingBlock Entity]
            [org.bukkit.inventory ItemStack]))
 
 #_(def chained-target-materials
@@ -49,19 +49,34 @@
              (.isEmpty (l/block-below block))
              (every? #(not (#{Material/LOG Material/LOG_2} (.getType %)))
                      (l/neighbours block)))
-    (let [sapling (ItemStack. Material/SAPLING 1 (short 0) (.getData block))
+    #_(let [sapling (ItemStack. Material/SAPLING 1 (short 0) (.getData block))
           stick (ItemStack. Material/STICK 1)
           apple (ItemStack. Material/APPLE 1)
           golden-apple (ItemStack. Material/APPLE 1)
-          itemstack (if (= 0 (.getData block))
+          material (if (= 0 (.getData block))
                       (rand-nth [sapling apple apple golden-apple stick stick stick stick])
                       (rand-nth [sapling sapling stick stick stick stick stick stick]))]
-      (l/drop-item (-> block .getLocation) itemstack))
+      #_(l/drop-item (-> block .getLocation) material))
     (let [f (l/fall block)]
+      (.setDropItem f false)
       (later 0
         (.setVelocity f (Vector. (rand-nth [0.5 0.0 -0.5])
                                  (inc (rand))
                                  (rand-nth [0.5 0.0 -0.5])))))))
+
+(defn EntityChangeBlockEvent [^org.bukkit.event.entity.EntityChangeBlockEvent evt ^Entity entity]
+  (condp instance? entity
+    FallingBlock
+    (when (contains? #{Material/LEAVES Material/LEAVES_2} (.getTo evt))
+      (.setCancelled evt true)
+      (let [loc (.getLocation entity)]
+        (condp > (rand-int 100)
+          1 (l/drop-item loc (ItemStack. Material/APPLE 1))
+          3 (l/block-set (.getBlock loc) Material/SAPLING (.getBlockData entity))
+          20 (l/drop-item loc (ItemStack. Material/STICK 1))
+          50 (.setCancelled evt false)
+          nil)))
+    nil))
 
 [(.getName *ns*) 'SUCCESSFULLY-COMPLETED]
 ; vim: set lispwords+=later :

@@ -34,8 +34,10 @@
       (l/post-lingr (-> evt .getDeathMessage)))
     (let [entity (-> evt .getEntity)]
       (when-let [killer-player (-> entity .getKiller)]
-        (let [name (->> entity class str (re-find #"Craft([^)]*)") last)]
-          (l/post-lingr (<< "~(.getName killer-player) killed a ~{name}")))))))
+        (let [name (->> entity class str (re-find #"Craft([^)]*)") last)
+              msg (<< "~{ChatColor/AQUA}~(.getName killer-player)~{ChatColor/RESET} killed a ~{name}")]
+          (l/post-lingr msg)
+          (Bukkit/broadcastMessage msg))))))
 
 (defn AsyncPlayerChatEvent [^org.bukkit.event.player.AsyncPlayerChatEvent evt]
   (let [player (-> evt .getPlayer)
@@ -119,6 +121,7 @@
 
 (defn EntityChangeBlockEvent [^org.bukkit.event.entity.EntityChangeBlockEvent evt]
   (let [entity (.getEntity evt)]
+    (cloft2.kickory/EntityChangeBlockEvent evt entity)
     (cloft2.coal/EntityChangeBlockEvent evt entity)))
 
 (def table {org.bukkit.event.player.AsyncPlayerChatEvent
