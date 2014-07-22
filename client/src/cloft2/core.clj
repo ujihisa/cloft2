@@ -37,7 +37,7 @@
       (nrepl/message
         nrepl-client
         {:op "load-file"
-         :file (str `(l/post-lingr (str "Deployed by " ~(System/getenv "USER"))))
+         :file (str `(do (ns cloft2.dummy (:require [cloft2.lib])) (cloft2.lib/post-lingr (str "Deployed by " ~(System/getenv "USER")))))
          :file-path "dummy"})))
   (System/exit 0))
 ; vim: set lispwords+=remote-eval,later :

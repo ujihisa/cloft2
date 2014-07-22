@@ -242,7 +242,6 @@
       (.setTamed horse true)
       (.setOwner horse ujm)))
   #_(prn (some-> ujm .getItemInHand (.setAmount 0))))
-(l/post-lingr (<< "Deployed by ~(System/getenv \"USER\")"))
 
 [(.getName *ns*) 'SUCCESSFULLY-COMPLETED]
 ; vim: set lispwords+=later :
