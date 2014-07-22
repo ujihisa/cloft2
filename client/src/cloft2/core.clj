@@ -37,9 +37,10 @@
       (nrepl/message
         nrepl-client
         {:op "load-file"
-         :file (str `(do (ns cloft2.dummy (:require [cloft2.lib]))
-                           (cloft2.lib/post-lingr (str "Deployed by " ~(System/getenv "USER")))
-                           (ort.bukkit.Bukkit/broadcastMessage (str "Deployed by " ~(System/getenv "USER")))))
+         :file (let [msg (str "Deployed by " (System/getenv "USER"))]
+                 (str `(do (ns cloft2.dummy (:require [cloft2.lib]))
+                         (cloft2.lib/post-lingr ~msg)
+                         (ort.bukkit.Bukkit/broadcastMessage ~msg))))
          :file-path "dummy"})))
   (System/exit 0))
 ; vim: set lispwords+=remote-eval,later :
