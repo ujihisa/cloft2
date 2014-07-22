@@ -1,6 +1,7 @@
 (ns cloft2.core
   (:require [clojure.string :as s]
-            [clojure.tools.nrepl :as nrepl]))
+            [clojure.tools.nrepl :as nrepl])
+  (:import [org.bukkit Bukkit]))
 
 #_(defn remote-eval* [nrepl-client expr]
   )
