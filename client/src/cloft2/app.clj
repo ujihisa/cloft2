@@ -104,6 +104,7 @@
               (.setAmount spade new-value))))))))
 
 (defn BlockBreakEvent [^org.bukkit.event.block.BlockBreakEvent evt]
+  (prn 'block-break-event evt)
   (let [block (-> evt .getBlock)]
     (cloft2.kickory/BlockBreakEvent evt block)
     (cloft2.coal/BlockBreakEvent evt block)))
@@ -123,6 +124,22 @@
   (let [entity (.getEntity evt)]
     (cloft2.kickory/EntityChangeBlockEvent evt entity)
     (cloft2.coal/EntityChangeBlockEvent evt entity)))
+
+(defn FurnaceBurnEvent [^org.bukkit.event.inventory.FurnaceBurnEvent evt]
+  (let [block (.getBlock evt)]
+    (let [fuel (.getFuel evt)]
+      ; when it's charcoal
+      (when (and (= Material/COAL (.getType fuel))
+                 (= 1 (-> fuel .getData .getData)))
+        (.setBurnTime evt (sec 20))) ; default is 80
+      ; when it's coal
+      (when (and (= Material/COAL (.getType fuel))
+                 (= 0 (-> fuel .getData .getData)))
+        (.setBurnTime evt (sec 320))) ; default is 80
+      ; when it's coal block
+      (when (= Material/COAL_BLOCK (.getType fuel))
+        (.setBurnTime evt (sec 1600)))  ; default is 800
+      (prn block 'time (.getBurnTime evt) (.isBurning evt) 'fuel (.getFuel evt)))))
 
 (def table {org.bukkit.event.player.AsyncPlayerChatEvent
             AsyncPlayerChatEvent
@@ -151,7 +168,14 @@
             org.bukkit.event.entity.EntityCombustEvent
             EntityCombustEvent
             org.bukkit.event.entity.EntityChangeBlockEvent
-            EntityChangeBlockEvent})
+            EntityChangeBlockEvent
+            org.bukkit.event.inventory.FurnaceBurnEvent
+            FurnaceBurnEvent})
+
+(Bukkit/resetRecipes)
+(let [recipe (org.bukkit.inventory.FurnaceRecipe.
+               (ItemStack. Material/BREAD 1) Material/WHEAT)]
+  (Bukkit/addRecipe recipe))
 
 (let [plugin-manager (Bukkit/getPluginManager)
       plugin (-> plugin-manager (.getPlugin "cloft2"))
