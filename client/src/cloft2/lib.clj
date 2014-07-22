@@ -72,4 +72,11 @@
 (defn send-block-change [^Player player ^Location loc ^Material mat ^Byte data]
   (.sendBlockChange player loc mat data))
 
+(defn spawn [^Location loc ^Entity clazz]
+  (.spawn (.getWorld loc) loc clazz))
+
+(defn rename [^ItemStack itemstack ^String new-name]
+  (.setItemMeta itemstack
+                (doto (.getItemMeta itemstack) (.setDisplayName  new-name))))
+
 [(.getName *ns*) 'SUCCESSFULLY-COMPLETED]

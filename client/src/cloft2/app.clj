@@ -11,6 +11,7 @@
             [cloft2.coal])
   (:import [org.bukkit Bukkit Material ChatColor]
            [org.bukkit.event HandlerList]
+           [org.bukkit.entity Arrow Player Horse]
            [org.bukkit.inventory ItemStack]
            [org.bukkit.util Vector]))
 
@@ -69,13 +70,35 @@
       (.sendMessage player "Welcome to cloft2!")
       (.sendMessage player "Dynmap http://mck.supermomonga.com:8123/"))))
 
+(def hoes #{Material/WOOD_HOE Material/IRON_HOE Material/GOLD_HOE Material/DIAMOND_HOE})
+
 (defn PlayerInteractEvent [^org.bukkit.event.player.PlayerInteractEvent evt]
-  #_(condp = (.getAction evt)
-    org.bukkit.event.block.Action/LEFT_CLICK_AIR
-    #_(let [msg (<< "~(-> evt .getPlayer .getName) clicked air at ~(-> evt .getPlayer .getLocation)")]
-    (prn msg)
-    (prn (l/post-lingr msg)))
-    (prn :else (.getAction evt))))
+  (let [player (.getPlayer evt)]
+    (condp = (.getAction evt)
+      org.bukkit.event.block.Action/LEFT_CLICK_AIR
+      (when (= "槍" (-> player .getItemInHand .getItemMeta .getDisplayName))
+        (let [arrow (.launchProjectile player Arrow)]
+          (later 0
+            (.setVelocity arrow (.multiply (.getVelocity arrow) 2)))
+          (later (sec 0.15)
+            (when (.isValid arrow)
+              (.remove arrow)))))
+      org.bukkit.event.block.Action/RIGHT_CLICK_AIR
+      (when (and (= Material/BOW (-> player .getItemInHand .getType))
+                 (instance? Horse (-> player .getVehicle)))
+        (let [horse (-> player .getVehicle)
+              vel (.getVelocity horse)]
+          #_(later 0
+            (l/set-velocity horse
+                            (* 10 (.getX vel))
+                            (inc (.getY vel))
+                            (* 10 (.getZ vel))))))
+      org.bukkit.event.block.Action/RIGHT_CLICK_BLOCK
+      (let [block (.getClickedBlock evt)]
+        (when (and (= Material/LONG_GRASS (.getType block))
+                   (contains? hoes (-> player .getItemInHand .getType)))
+          (.breakNaturally block (-> player .getItemInHand))))
+      nil)))
 
 (defn PlayerQuitEvent [^org.bukkit.event.player.PlayerQuitEvent evt]
   (let [msg (<< "~(-> evt .getPlayer .getName) logged out.")]
@@ -104,10 +127,11 @@
               (.setAmount spade new-value))))))))
 
 (defn BlockBreakEvent [^org.bukkit.event.block.BlockBreakEvent evt]
-  #_(prn 'block-break-event evt)
-  (let [block (-> evt .getBlock)]
-    (cloft2.kickory/BlockBreakEvent evt block)
-    (cloft2.coal/BlockBreakEvent evt block)))
+  ; weird bug
+  (when (instance? org.bukkit.event.block.BlockBreakEvent evt)
+    (let [block (-> evt .getBlock)]
+      (cloft2.kickory/BlockBreakEvent evt block)
+      (cloft2.coal/BlockBreakEvent evt block))))
 
 (defn BlockPhysicsEvent [^org.bukkit.event.block.BlockPhysicsEvent evt]
   (let [block (-> evt .getBlock)]
@@ -128,18 +152,26 @@
 (defn FurnaceBurnEvent [^org.bukkit.event.inventory.FurnaceBurnEvent evt]
   (let [block (.getBlock evt)]
     (let [fuel (.getFuel evt)]
-      ; when it's charcoal
-      (when (and (= Material/COAL (.getType fuel))
-                 (= 1 (-> fuel .getData .getData)))
-        (.setBurnTime evt (sec 20))) ; default is 80
-      ; when it's coal
-      (when (and (= Material/COAL (.getType fuel))
-                 (= 0 (-> fuel .getData .getData)))
-        (.setBurnTime evt (sec 320))) ; default is 80
-      ; when it's coal block
-      (when (= Material/COAL_BLOCK (.getType fuel))
-        (.setBurnTime evt (sec 1600)))  ; default is 800
-      (prn block 'time (.getBurnTime evt) (.isBurning evt) 'fuel (.getFuel evt)))))
+      (cond
+        ; when it's charcoal
+        (and (= Material/COAL (.getType fuel))
+             (= 1 (-> fuel .getData .getData)))
+        (.setBurnTime evt (sec 20)) ; default is 80
+        ; when it's coal
+        (and (= Material/COAL (.getType fuel))
+             (= 0 (-> fuel .getData .getData)))
+        (.setBurnTime evt (sec 320)) ; default is 80
+        ; when it's coal block
+        (= Material/COAL_BLOCK (.getType fuel))
+        (.setBurnTime evt (sec 1600))  ; default is 800
+        :else nil))))
+
+(defn ProjectileLaunchEvent [^org.bukkit.event.entity.ProjectileLaunchEvent evt]
+  (let [entity (.getEntity evt)
+        shooter (.getShooter entity)]
+    (when (and (instance? Arrow entity)
+               (= Horse (.getVehicle shooter)))
+      (.teleport entity (l/add-loc (.getEyeLocation shooter) 0 1.5 0)))))
 
 (def table {org.bukkit.event.player.AsyncPlayerChatEvent
             AsyncPlayerChatEvent
@@ -170,7 +202,9 @@
             org.bukkit.event.entity.EntityChangeBlockEvent
             EntityChangeBlockEvent
             org.bukkit.event.inventory.FurnaceBurnEvent
-            FurnaceBurnEvent})
+            FurnaceBurnEvent
+            org.bukkit.event.entity.ProjectileLaunchEvent
+            ProjectileLaunchEvent})
 
 (Bukkit/resetRecipes)
 (let [recipe (org.bukkit.inventory.FurnaceRecipe.
@@ -193,7 +227,22 @@
       org.bukkit.event.EventPriority/NORMAL
       executer
       plugin))
+  #_(let [horse (.getVehicle ujm)]
+    (l/set-velocity horse -10 0 0))
+  #_(let [horse (.getVehicle ujm)]
+    (.eject horse)
+    (.teleport ujm (doto (.getLocation ujm)
+                       (.setPitch 0)
+                       (.setYaw 0)))
+    (.setPassenger horse ujm))
+  #_(l/rename (.getItemInHand ujm) "槍")
+
+  #_(let [horse (l/spawn (.getLocation ujm) org.bukkit.entity.Horse)]
+    (later 0
+      (.setTamed horse true)
+      (.setOwner horse ujm)))
   #_(prn (some-> ujm .getItemInHand (.setAmount 0))))
+(l/post-lingr (<< "Deployed by ~(System/getenv \"USER\")"))
 
 [(.getName *ns*) 'SUCCESSFULLY-COMPLETED]
 ; vim: set lispwords+=later :
