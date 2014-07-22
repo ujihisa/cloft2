@@ -1,7 +1,7 @@
 (ns cloft2.lib
   (:import [org.bukkit Bukkit Material Location ChatColor]
            [org.bukkit.block Block]
-           [org.bukkit.entity Entity]
+           [org.bukkit.entity Entity Player]
            [org.bukkit.inventory ItemStack]
            [org.bukkit.util Vector]))
 
@@ -16,13 +16,13 @@
                  [msgtype msg]
                  (if (< 10 (count orig)) (drop-last orig) orig)))
              msg)
-      (clj-http.client/post
-        "http://lingr.com/api/room/say"
-        {:form-params
-         {:room "mcujm"
-          :bot 'sugoicraft
-          :text (ChatColor/stripColor (str msg))
-          :bot_verifier "bb5060f31bc6e89018c55ac72d39d5ca6aca75c9"}}))))
+      (future (clj-http.client/post
+                "http://lingr.com/api/room/say"
+                {:form-params
+                 {:room "mcujm"
+                  :bot 'sugoicraft
+                  :text (ChatColor/stripColor (str msg))
+                  :bot_verifier "bb5060f31bc6e89018c55ac72d39d5ca6aca75c9"}})))))
 
 (defn sec [n]
   (int (* 20 n)))
@@ -65,5 +65,8 @@
 
 (defn set-velocity [^Entity entity ^Double x ^Double y ^Double z]
   (.setVelocity entity (Vector. x y z)))
+
+(defn send-block-change [^Player player ^Location loc ^Material mat ^Byte data]
+  (.sendBlockChange player loc mat data))
 
 [(.getName *ns*) 'SUCCESSFULLY-COMPLETED]

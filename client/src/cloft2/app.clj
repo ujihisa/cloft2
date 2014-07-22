@@ -34,8 +34,8 @@
       (l/post-lingr (-> evt .getDeathMessage)))
     (let [entity (-> evt .getEntity)]
       (when-let [killer-player (-> entity .getKiller)]
-        (let [name (.getClass entity)]
-          (l/post-lingr (<< "~(.getName killer-player) killed a ~{name})")))))))
+        (let [name (->> entity class str (re-find #"Craft([^)]*)") last)]
+          (l/post-lingr (<< "~(.getName killer-player) killed a ~{name}")))))))
 
 (defn AsyncPlayerChatEvent [^org.bukkit.event.player.AsyncPlayerChatEvent evt]
   (let [player (-> evt .getPlayer)
@@ -117,6 +117,10 @@
       (.setDuration evt 0)
       (.setCancelled evt true))))
 
+(defn EntityChangeBlockEvent [^org.bukkit.event.entity.EntityChangeBlockEvent evt]
+  (let [entity (.getEntity evt)]
+    (cloft2.coal/EntityChangeBlockEvent evt entity)))
+
 (def table {org.bukkit.event.player.AsyncPlayerChatEvent
             AsyncPlayerChatEvent
             org.bukkit.event.player.PlayerLoginEvent
@@ -142,7 +146,9 @@
             org.bukkit.event.block.BlockPhysicsEvent
             BlockPhysicsEvent
             org.bukkit.event.entity.EntityCombustEvent
-            EntityCombustEvent})
+            EntityCombustEvent
+            org.bukkit.event.entity.EntityChangeBlockEvent
+            EntityChangeBlockEvent})
 
 (let [plugin-manager (Bukkit/getPluginManager)
       plugin (-> plugin-manager (.getPlugin "cloft2"))
