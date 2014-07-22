@@ -27,11 +27,14 @@
   (when (= org.bukkit.event.entity.EntityDamageEvent (.getClass evt))
     (cloft2.safe-grass/EntityDamageEvent evt (-> evt .getEntity))))
 
-(defn PlayerDeathEvent [evt]
-  ; TODO
-  (when (= org.bukkit.event.entity.PlayerDeathEvent (.getClass evt))
+(defn EntityDeathEvent [evt]
+  (if (= org.bukkit.event.entity.PlayerDeathEvent (.getClass evt))
     (let [player (-> evt .getEntity)]
-      (l/post-lingr (-> evt .getDeathMessage)))))
+      (l/post-lingr (-> evt .getDeathMessage)))
+    (let [entity (-> evt .getEntity)]
+      (when-let [killer-player (-> entity .getKiller)]
+        (let [name (.getClass entity)]
+          (l/post-lingr (<< "~(.getName killer-player) killed a ~{name})")))))))
 
 (defn AsyncPlayerChatEvent [^org.bukkit.event.player.AsyncPlayerChatEvent evt]
   (let [player (-> evt .getPlayer)
@@ -157,8 +160,8 @@
             BlockDamageEvent
             org.bukkit.event.block.BlockBreakEvent
             BlockBreakEvent
-            org.bukkit.event.entity.PlayerDeathEvent
-            PlayerDeathEvent
+            org.bukkit.event.entity.EntityDeathEvent
+            EntityDeathEvent
             org.bukkit.event.block.BlockPhysicsEvent
             BlockPhysicsEvent
             org.bukkit.event.entity.EntityCombustEvent
