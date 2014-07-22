@@ -19,10 +19,6 @@
   #{Material/IRON_AXE Material/WOOD_AXE Material/STONE_AXE
     Material/DIAMOND_AXE Material/GOLD_AXE})
 
-; TODO move it to lib
-(defn- block-above [^Location block]
-  (-> block .getLocation (l/add-loc 0 1 0) .getBlock))
-
 (defn- kickory [^Block block limit]
   (when (< 0 limit)
     (doseq [b (conj (l/neighbours block) block)
@@ -34,7 +30,7 @@
         (.breakNaturally b (ItemStack. Material/WOOD_AXE 1)))
       (do
         (kickory b (dec limit))
-        (kickory (block-above b) (dec limit))))))
+        (kickory (l/block-above b) (dec limit))))))
 
 (def block-breaking-tick? (ref false))
 (defn BlockBreakEvent [^org.bukkit.event.block.BlockBreakEvent evt ^Block block]
@@ -43,7 +39,7 @@
     (when (and
             (#{Material/LOG Material/LOG_2} (-> block .getType))
             (every? #(-> % .getType .isSolid not) (l/neighbours block)))
-      (kickory (block-above block) 100)))
+      (kickory (l/block-above block) 100)))
   (later 0
     (dosync (ref-set block-breaking-tick? false))))
 

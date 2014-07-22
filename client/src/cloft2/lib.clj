@@ -47,6 +47,9 @@
   (-> (doto (.getLocation block) (.add 0 -1 0))
     .getBlock))
 
+(defn block-above [^Block block]
+  (-> block .getLocation (add-loc 0 1 0) .getBlock))
+
 (defn add-loc [^Location loc x y z]
   (doto (-> loc .clone) (.add x y z)))
 
