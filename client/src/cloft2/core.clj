@@ -40,7 +40,7 @@
          :file (let [msg (str "Deployed by " (System/getenv "USER"))]
                  (str `(do (ns cloft2.dummy (:require [cloft2.lib]))
                          (cloft2.lib/post-lingr ~msg)
-                         (ort.bukkit.Bukkit/broadcastMessage ~msg))))
+                         (org.bukkit.Bukkit/broadcastMessage ~msg))))
          :file-path "dummy"})))
   (System/exit 0))
 ; vim: set lispwords+=remote-eval,later :
