@@ -12,7 +12,7 @@
     (let [block-below (l/block-below (-> entity .getLocation .getBlock))]
       (when (= Material/GRASS (-> block-below .getType))
         (-> evt (.setCancelled true))
-        (-> block-below (.setType Material/DIRT))
+        (l/block-set block-below Material/DIRT 0)
         (-> entity (.setVelocity (let [v (.getVelocity entity)]
                                    (.setY v (+ 0.3 (.getY v)))
                                    v)))))

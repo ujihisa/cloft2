@@ -14,7 +14,7 @@
            [org.bukkit.inventory ItemStack]
            [org.bukkit.util Vector]))
 
-(defn PlayerToggleSprintEvent [evt]
+(defn PlayerToggleSprintEvent [^org.bukkit.event.player.PlayerToggleSprintEvent evt]
   (cloft2.fast-dash/PlayerToggleSprintEvent evt))
 
 (defn PlayerToggleSneakEvent [evt]
@@ -58,7 +58,7 @@
     (.setMessage evt msg)
     (l/post-lingr postmsg)))
 
-(defn PlayerLoginEvent [evt]
+(defn PlayerLoginEvent [^org.bukkit.event.player.PlayerLoginEvent evt]
   (let [player (-> evt .getPlayer)
         msg (<< "~(-> player .getName) logged in.")]
     (l/post-lingr msg ['login-logout (-> player .getName)])
@@ -66,7 +66,7 @@
       (.sendMessage player "Welcome to cloft2!")
       (.sendMessage player "Dynmap http://mck.supermomonga.com:8123/"))))
 
-(defn PlayerInteractEvent [evt]
+(defn PlayerInteractEvent [^org.bukkit.event.player.PlayerInteractEvent evt]
   #_(condp = (.getAction evt)
     org.bukkit.event.block.Action/LEFT_CLICK_AIR
     #_(let [msg (<< "~(-> evt .getPlayer .getName) clicked air at ~(-> evt .getPlayer .getLocation)")]
@@ -74,7 +74,7 @@
     (prn (l/post-lingr msg)))
     (prn :else (.getAction evt))))
 
-(defn PlayerQuitEvent [evt]
+(defn PlayerQuitEvent [^org.bukkit.event.player.PlayerQuitEvent evt]
   (let [msg (<< "~(-> evt .getPlayer .getName) logged out.")]
     (l/post-lingr msg ['login-logout (-> evt .getPlayer .getName)])))
 

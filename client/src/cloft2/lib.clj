@@ -30,7 +30,7 @@
 (let [plugin (-> (Bukkit/getPluginManager) (.getPlugin "cloft2"))]
   (defn later* [tick f]
     (.scheduleSyncDelayedTask
-      (org.bukkit.Bukkit/getScheduler) plugin f tick)))
+      (Bukkit/getScheduler) plugin f tick)))
 (defmacro later [tick & exps]
   `(later* ~tick (fn [] ~@exps)))
 
