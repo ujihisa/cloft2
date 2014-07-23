@@ -1,4 +1,4 @@
-(ns cloft2.core
+(ns cloft2.app
   (:use [clojure.core.strint :only (<<)]
         [cloft2.lib :only (later sec)])
   (:require [clj-http.client]
@@ -14,6 +14,8 @@
            [org.bukkit.entity Arrow Player Horse]
            [org.bukkit.inventory ItemStack]
            [org.bukkit.util Vector]))
+
+(doseq [[name _] (ns-publics *ns*)] (ns-unmap *ns* name))
 
 (defn PlayerToggleSprintEvent [^org.bukkit.event.player.PlayerToggleSprintEvent evt]
   (cloft2.fast-dash/PlayerToggleSprintEvent evt))
@@ -96,14 +98,15 @@
                             (* 10 (.getZ vel))))))
       org.bukkit.event.block.Action/RIGHT_CLICK_BLOCK
       (let [block (.getClickedBlock evt)]
-        (when (and (= Material/COBBLESTONE (.getType block))
+        (when (and (= Material/SKULL (.getType block))
+                   (= 1 (.getData block))
                    (= Material/AIR (-> player .getItemInHand .getType)))
           (let [[x y z] (let [f (-> evt .getBlockFace)]
                           [(.getModX f) (.getModY f) (.getModZ f)])
                 block-clicked (.getClickedBlock evt)
                 block-below (l/block-below block-clicked)
                 block-next (-> block-clicked .getLocation (l/sub-loc x y z) .getBlock)
-                block-belownext (l/block-below block-next)] 
+                block-belownext (l/block-below block-next)]
             (when (and (= Material/COBBLESTONE (.getType block-below))
                        (.isTransparent (-> block-next .getType))
                        (or (.isTransparent (-> block-belownext .getType))
@@ -115,7 +118,7 @@
                 (.breakNaturally b))
               (l/block-set block-next (.getType block-clicked) (.getData block-clicked))
               (l/block-set block-belownext (.getType block-below) (.getData block-below))
-              (later (sec 0.2)
+              (later 0
                 (l/block-set block-clicked Material/AIR 0)
                 (l/block-set block-below Material/STEP 3)))))
         (when (and (= Material/LONG_GRASS (.getType block))
@@ -195,6 +198,19 @@
     (when (and (instance? Arrow entity)
                (= Horse (.getVehicle shooter)))
       (.teleport entity (l/add-loc (.getEyeLocation shooter) 0 1.5 0)))))
+
+#_(doseq [nz ['cloft2.fast-dash
+            'cloft2.sneaking-jump
+            'cloft2.safe-grass
+            'cloft2.kickory
+            'cloft2.coal]
+        [k v] (ns-publics nz)
+        :let [first-arg-type (some-> v meta :arglists first first meta :tag)]
+        :when first-arg-type]
+  (prn k v first-arg-type))
+
+#_ (doseq [parent-event [org.bukkit.event.player.PlayerEvent]]
+  (prn (-> parent-event bean)))
 
 (def table {org.bukkit.event.player.AsyncPlayerChatEvent
             AsyncPlayerChatEvent

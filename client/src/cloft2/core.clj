@@ -25,7 +25,7 @@
                      {:op "load-file" :file (slurp file-path) :file-path file-path})]
         (try
           (condp #(get %2 %1) resp
-            :out (println (:out resp))
+            :out (print (:out resp))
             :value (println (str "(RETURN VALUE) " (:value resp)))
             :ex (println (str "!!!" (:ex resp) "!!!"))
             :err (println (str "!!!" (s/trim-newline (:err resp)) "!!!"))
