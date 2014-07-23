@@ -22,7 +22,8 @@
   (cloft2.sneaking-jump/PlayerToggleSneakEvent evt (-> evt .getPlayer)))
 
 (defn PlayerMoveEvent [^org.bukkit.event.player.PlayerMoveEvent evt]
-  (cloft2.sneaking-jump/PlayerMoveEvent evt (-> evt .getPlayer)))
+  (let [player (-> evt .getPlayer)]
+    (cloft2.sneaking-jump/PlayerMoveEvent evt player)))
 
 (defn EntityDamageEvent [^org.bukkit.event.entity.EntityDamageEvent evt]
   (when (= org.bukkit.event.entity.EntityDamageEvent (.getClass evt))
@@ -95,6 +96,28 @@
                             (* 10 (.getZ vel))))))
       org.bukkit.event.block.Action/RIGHT_CLICK_BLOCK
       (let [block (.getClickedBlock evt)]
+        (when (and (= Material/COBBLESTONE (.getType block))
+                   (= Material/AIR (-> player .getItemInHand .getType)))
+          (let [[x y z] (let [f (-> evt .getBlockFace)]
+                          [(.getModX f) (.getModY f) (.getModZ f)])
+                block-clicked (.getClickedBlock evt)
+                block-below (l/block-below block-clicked)
+                block-next (-> block-clicked .getLocation (l/sub-loc x y z) .getBlock)
+                block-belownext (l/block-below block-next)] 
+            (when (and (= Material/COBBLESTONE (.getType block-below))
+                       (.isTransparent (-> block-next .getType))
+                       (or (.isTransparent (-> block-belownext .getType))
+                           (and (= Material/STEP (.getType block-belownext))
+                                (= 3 (.getData block-belownext)))))
+              (doseq [b [block-next block-belownext]
+                      :when (and (not= Material/STEP (.getType b))
+                                 (not= 3 (.getData b)))]
+                (.breakNaturally b))
+              (l/block-set block-next (.getType block-clicked) (.getData block-clicked))
+              (l/block-set block-belownext (.getType block-below) (.getData block-below))
+              (later (sec 0.2)
+                (l/block-set block-clicked Material/AIR 0)
+                (l/block-set block-below Material/STEP 3)))))
         (when (and (= Material/LONG_GRASS (.getType block))
                    (contains? hoes (-> player .getItemInHand .getType)))
           (.breakNaturally block (-> player .getItemInHand))))
