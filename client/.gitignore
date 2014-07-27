@@ -3,3 +3,6 @@
 ## Ignore Intellig IDEA files
 client.iml
 .idea
+
+## Leiningen's REPL history file
+.lein-repl-history
