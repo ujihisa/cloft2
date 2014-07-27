@@ -4,6 +4,7 @@
   (:require [clj-http.client]
             [clojure.string :as s]
             [cloft2.lib :as l]
+            [cloft2.guard-bockback]
             [cloft2.fast-dash]
             [cloft2.sneaking-jump]
             [cloft2.safe-grass]
@@ -13,9 +14,13 @@
            [org.bukkit.event HandlerList]
            [org.bukkit.entity Arrow Player Horse]
            [org.bukkit.inventory ItemStack]
-           [org.bukkit.util Vector]))
+           [org.bukkit.util Vector]
+           [org.bukkit.event.entity EntityDamageByEntityEvent]))
 
 (doseq [[name _] (ns-publics *ns*)] (ns-unmap *ns* name))
+
+(defn EntityDamageByEntityEvent [^org.bukkit.event.entity.EntityDamageByEntityEvent evt]
+  (cloft2.guard-bockback/EntityDamageByEntityEvent evt))
 
 (defn PlayerToggleSprintEvent [^org.bukkit.event.player.PlayerToggleSprintEvent evt]
   (cloft2.fast-dash/PlayerToggleSprintEvent evt))
