@@ -1,4 +1,4 @@
-(ns cloft2.guard-bockback
+(ns cloft2.guard
   (:use [cloft2.lib :only (later sec)])
   (:import [org.bukkit Bukkit Material]
            [org.bukkit.event.entity EntityDamageByEntityEvent]))
