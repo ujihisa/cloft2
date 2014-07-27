@@ -212,6 +212,39 @@
 #_ (doseq [parent-event [org.bukkit.event.player.PlayerEvent]]
   (prn (-> parent-event bean)))
 
+(defn BlockPlaceEvent [^org.bukkit.event.block.BlockPlaceEvent evt]
+  nil
+  #_(let [block (.getBlock evt)]
+    (condp = (.getType block)
+      Material/SAPLING
+      #_ (Bukkit/broadcastMessage (str (-> block .getState .getData .getSpecies)))
+      (later 0 (-> (.getWorld block)
+                 (.generateTree (.getLocation block) org.bukkit.TreeType/COCOA_TREE)))
+      Material/FENCE
+      (let [blocks (for [y (range 1 255)
+                         :let [[x z] [(.getX (.getLocation block))
+                                      (.getZ (.getLocation block))]
+                               b (.getBlockAt (.getWorld block) x y z)]
+                         :when (not= Material/BEDROCK (.getType b))]
+                     b)]
+        (later 0
+          (doseq [b blocks]
+            (l/block-set b Material/FENCE 0))))
+      Material/BEDROCK
+      (let [blocks (for [y (range 1 255)
+                         x-diff (range -1 2)
+                         z-diff (range -1 2)
+                         :let [[x z] [(+ x-diff (.getX (.getLocation block)))
+                                      (+ z-diff (.getZ (.getLocation block)))]
+                               b (.getBlockAt (.getWorld block) x y z)]
+                         :when (not (#{Material/AIR Material/BEDROCK} (.getType b)))]
+                     b)]
+        (.setCancelled evt true)
+        (later 0
+          (doseq [b blocks]
+            (l/block-set b Material/AIR 0))))
+      nil)))
+
 (def table {org.bukkit.event.player.AsyncPlayerChatEvent
             AsyncPlayerChatEvent
             org.bukkit.event.player.PlayerLoginEvent
@@ -243,7 +276,9 @@
             org.bukkit.event.inventory.FurnaceBurnEvent
             FurnaceBurnEvent
             org.bukkit.event.entity.ProjectileLaunchEvent
-            ProjectileLaunchEvent})
+            ProjectileLaunchEvent
+            org.bukkit.event.block.BlockPlaceEvent
+            BlockPlaceEvent})
 
 (Bukkit/resetRecipes)
 (let [recipe (org.bukkit.inventory.FurnaceRecipe.
@@ -281,6 +316,13 @@
       (.setTamed horse true)
       (.setOwner horse ujm)))
   #_(prn (some-> ujm .getItemInHand (.setAmount 0))))
+
+#_ (later 0 (prn (doto (org.bukkit.WorldCreator. "test")
+                (.generator (.getGenerator (Bukkit/getWorld "world")))
+                .createWorld)))
+#_ (-> (Bukkit/getPlayer "ujm")
+  (.teleport (.getSpawnLocation (Bukkit/getWorld "test"))))
+#_ (prn (Bukkit/getWorlds))
 
 [(.getName *ns*) 'SUCCESSFULLY-COMPLETED]
 ; vim: set lispwords+=later :
