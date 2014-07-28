@@ -1,4 +1,5 @@
 (ns cloft2.lib
+  (:require [clj-http.client])
   (:import [org.bukkit Bukkit Material Location ChatColor]
            [org.bukkit.block Block]
            [org.bukkit.entity Entity Player]
@@ -27,10 +28,12 @@
 (defn sec [n]
   (int (* 20 n)))
 
-(let [plugin (-> (Bukkit/getPluginManager) (.getPlugin "cloft2"))]
-  (defn later* [tick f]
-    (.scheduleSyncDelayedTask
-      (Bukkit/getScheduler) plugin f tick)))
+(def ^:dynamic *plugin*
+  (delay (-> (Bukkit/getPluginManager) (.getPlugin "cloft2"))))
+(defn later* [tick f]
+  (.scheduleSyncDelayedTask
+    (Bukkit/getScheduler) @*plugin* f tick))
+
 (defmacro later [tick & exps]
   `(later* ~tick (fn [] ~@exps)))
 
