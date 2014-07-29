@@ -79,5 +79,4 @@
           nil)))
     nil))
 
-[(.getName *ns*) 'SUCCESSFULLY-COMPLETED]
 ; vim: set lispwords+=later :

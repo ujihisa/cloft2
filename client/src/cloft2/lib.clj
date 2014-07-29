@@ -85,4 +85,3 @@
   (.setItemMeta itemstack
                 (doto (.getItemMeta itemstack) (.setDisplayName  new-name))))
 
-[(.getName *ns*) 'SUCCESSFULLY-COMPLETED]

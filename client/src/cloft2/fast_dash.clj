@@ -20,5 +20,4 @@
         (.setWalkSpeed player 0.2)
         (swap! dash-id-table assoc player nil)))))
 
-[(.getName *ns*) 'SUCCESSFULLY-COMPLETED]
 ; vim: set lispwords+=later :

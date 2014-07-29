@@ -40,5 +40,4 @@
             (l/send-block-change player (.getLocation block) (.getType block) (.getData block)))))
       nil)))
 
-[(.getName *ns*) 'SUCCESSFULLY-COMPLETED]
 ; vim: set lispwords+=later :

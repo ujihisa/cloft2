@@ -329,5 +329,4 @@
     (.teleport (.getSpawnLocation (Bukkit/getWorld "test"))))
   #_ (prn (Bukkit/getWorlds)))
 
-[(.getName *ns*) 'SUCCESSFULLY-COMPLETED]
 ; vim: set lispwords+=later :

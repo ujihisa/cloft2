@@ -7,5 +7,4 @@
 (defn EntityDamageByEntityEvent [^org.bukkit.event.entity.EntityDamageByEntityEvent evt]
   )
 
-[(.getName *ns*) 'SUCCESSFULLY-COMPLETED]
 ; vim: set lispwords+=later :

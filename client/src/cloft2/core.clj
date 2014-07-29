@@ -18,11 +18,16 @@
                           "src/cloft2/coal.clj"
                           "src/cloft2/sneaking_jump.clj"
                           "src/cloft2/safe_grass.clj"
+                          "src/cloft2/guard.clj"
                           "src/cloft2/app.clj"]
               :let [file-path (str basedir "/" file-path*)]
               resp (nrepl/message
                      nrepl-client
-                     {:op "load-file" :file (slurp file-path) :file-path file-path})]
+                     {:op "load-file"
+                      :file (str (slurp file-path)
+                                 "\n(when (contains? (ns-interns *ns*) 'init) (eval '(init)))
+                                 \n[(.getName *ns*) 'SUCCESSFULLY-COMPLETED]")
+                      :file-path file-path})]
         (try
           (condp #(get %2 %1) resp
             :out (print (:out resp))

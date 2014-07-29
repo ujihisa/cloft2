@@ -18,6 +18,4 @@
                                    (.setY v (+ 0.3 (.getY v)))
                                    v)))))
     nil))
-
-[(.getName *ns*) 'SUCCESSFULLY-COMPLETED]
 ; vim: set lispwords+=later :
