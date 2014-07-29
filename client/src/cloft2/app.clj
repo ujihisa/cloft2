@@ -8,13 +8,13 @@
             [cloft2.sneaking-jump]
             [cloft2.safe-grass]
             [cloft2.kickory]
-            [cloft2.coal])
+            [cloft2.coal]
+            [cloft2.guard])
   (:import [org.bukkit Bukkit Material ChatColor]
            [org.bukkit.event HandlerList]
            [org.bukkit.entity Arrow Player Horse]
            [org.bukkit.inventory ItemStack]
-           [org.bukkit.util Vector]
-           [org.bukkit.event.entity EntityDamageByEntityEvent]))
+           [org.bukkit.util Vector]))
 
 (doseq [[name _] (ns-publics *ns*)] (ns-unmap *ns* name))
 
@@ -284,49 +284,50 @@
             org.bukkit.event.block.BlockPlaceEvent
             BlockPlaceEvent})
 
-(Bukkit/resetRecipes)
-(let [recipe (org.bukkit.inventory.FurnaceRecipe.
-               (ItemStack. Material/BREAD 1) Material/WHEAT)]
-  (Bukkit/addRecipe recipe))
+(defn init []
+  (Bukkit/resetRecipes)
+  (let [recipe (org.bukkit.inventory.FurnaceRecipe.
+                 (ItemStack. Material/BREAD 1) Material/WHEAT)]
+    (Bukkit/addRecipe recipe))
 
-(let [plugin-manager (Bukkit/getPluginManager)
-      plugin (-> plugin-manager (.getPlugin "cloft2"))
-      ujm (Bukkit/getPlayer "ujm")]
-  (HandlerList/unregisterAll plugin)
-  (doseq [[event-class event-f] table
-          :let [executer
-                (reify org.bukkit.plugin.EventExecutor
-                  (execute [_ _ evt]
-                    (event-f evt)))]]
-    (.registerEvent
-      plugin-manager
-      event-class
-      plugin
-      org.bukkit.event.EventPriority/NORMAL
-      executer
-      plugin))
-  #_(let [horse (.getVehicle ujm)]
-    (l/set-velocity horse -10 0 0))
-  #_(let [horse (.getVehicle ujm)]
-    (.eject horse)
-    (.teleport ujm (doto (.getLocation ujm)
+  (let [plugin-manager (Bukkit/getPluginManager)
+        plugin (-> plugin-manager (.getPlugin "cloft2"))
+        ujm (Bukkit/getPlayer "ujm")]
+    (HandlerList/unregisterAll plugin)
+    (doseq [[event-class event-f] table
+            :let [executer
+                  (reify org.bukkit.plugin.EventExecutor
+                    (execute [_ _ evt]
+                      (event-f evt)))]]
+      (.registerEvent
+        plugin-manager
+        event-class
+        plugin
+        org.bukkit.event.EventPriority/NORMAL
+        executer
+        plugin))
+    #_ (let [horse (.getVehicle ujm)]
+      (l/set-velocity horse -10 0 0))
+    #_ (let [horse (.getVehicle ujm)]
+      (.eject horse)
+      (.teleport ujm (doto (.getLocation ujm)
                        (.setPitch 0)
                        (.setYaw 0)))
-    (.setPassenger horse ujm))
-  #_(l/rename (.getItemInHand ujm) "槍")
+      (.setPassenger horse ujm))
+    #_(l/rename (.getItemInHand ujm) "槍")
 
-  #_(let [horse (l/spawn (.getLocation ujm) org.bukkit.entity.Horse)]
-    (later 0
-      (.setTamed horse true)
-      (.setOwner horse ujm)))
-  #_(prn (some-> ujm .getItemInHand (.setAmount 0))))
+    #_(let [horse (l/spawn (.getLocation ujm) org.bukkit.entity.Horse)]
+      (later 0
+        (.setTamed horse true)
+        (.setOwner horse ujm)))
+    #_(prn (some-> ujm .getItemInHand (.setAmount 0))))
 
-#_ (later 0 (prn (doto (org.bukkit.WorldCreator. "test")
-                (.generator (.getGenerator (Bukkit/getWorld "world")))
-                .createWorld)))
-#_ (-> (Bukkit/getPlayer "ujm")
-  (.teleport (.getSpawnLocation (Bukkit/getWorld "test"))))
-#_ (prn (Bukkit/getWorlds))
+  #_ (later 0 (prn (doto (org.bukkit.WorldCreator. "test")
+                  (.generator (.getGenerator (Bukkit/getWorld "world")))
+                  .createWorld)))
+  #_ (-> (Bukkit/getPlayer "ujm")
+    (.teleport (.getSpawnLocation (Bukkit/getWorld "test"))))
+  #_ (prn (Bukkit/getWorlds)))
 
 [(.getName *ns*) 'SUCCESSFULLY-COMPLETED]
 ; vim: set lispwords+=later :
