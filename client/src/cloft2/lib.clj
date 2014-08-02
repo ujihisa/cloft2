@@ -25,7 +25,12 @@
                   :text (ChatColor/stripColor (str msg))
                   :bot_verifier "bb5060f31bc6e89018c55ac72d39d5ca6aca75c9"}})))))
 
-(defn sec [n]
+(defn
+  ^{:doc "Convert from seconds to ticks"
+    :tag Long
+    :test (fn []
+            (assert (= 100 (sec 5))))}
+  sec [n]
   (int (* 20 n)))
 
 (def ^:dynamic *plugin*
@@ -84,4 +89,3 @@
 (defn rename [^ItemStack itemstack ^String new-name]
   (.setItemMeta itemstack
                 (doto (.getItemMeta itemstack) (.setDisplayName  new-name))))
-
