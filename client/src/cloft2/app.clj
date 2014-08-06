@@ -1,5 +1,6 @@
 (ns cloft2.app
   (:use [clojure.core.strint :only (<<)]
+        [clojure.pprint :only (pprint)]
         [cloft2.lib :only (later sec)])
   (:require [clj-http.client]
             [clojure.string :as s]
@@ -249,6 +250,40 @@
             (l/block-set b Material/AIR 0))))
       nil)))
 
+(defn ChunkPopulateEvent [^org.bukkit.event.world.ChunkPopulateEvent evt]
+  (let [bench-before (System/currentTimeMillis)]
+
+    (let [chunk (.getChunk evt)]
+      #_ (when (= "world" (-> chunk .getWorld .getName))
+        (doseq [block (chunk-blocks chunk)]
+          (when-let [type-to
+                     ({127 Material/LAVA 126 Material/GLASS}
+                       (-> block .getY))]
+            (l/block-set block type-to 0)))))
+
+    (prn 'Took (- (System/currentTimeMillis) bench-before)) 'msec))
+
+(defn- chunk-blocks [^org.bukkit.Chunk chunk]
+  (for [x (range 16)
+        y (range 128)
+        z (range 16)]
+    (.getBlock chunk x y z)))
+
+#_ (let [chunk (-> (Bukkit/getPlayer "ujm") .getLocation .getChunk) ]
+  (let [bench-before (System/currentTimeMillis)]
+    #_ (let [blocks (for [block (chunk-blocks chunk)
+                       :when (= Material/BEDROCK (.getType block))]
+                      (.getLocation block))]
+      (pprint (doall blocks)))
+    (doseq [block (chunk-blocks chunk)]
+      (when-let [type-to
+                 ({127 Material/LAVA 126 Material/GLASS}
+                   (-> block .getY))]
+        (l/block-set block type-to 0)))
+    (prn 'Took (- (System/currentTimeMillis) bench-before)) 'msec))
+
+#_ (l/post-lingr "<ujm> w")
+
 (def table {org.bukkit.event.player.AsyncPlayerChatEvent
             AsyncPlayerChatEvent
             org.bukkit.event.player.PlayerLoginEvent
@@ -282,7 +317,9 @@
             org.bukkit.event.entity.ProjectileLaunchEvent
             ProjectileLaunchEvent
             org.bukkit.event.block.BlockPlaceEvent
-            BlockPlaceEvent})
+            BlockPlaceEvent
+            org.bukkit.event.world.ChunkPopulateEvent
+            ChunkPopulateEvent})
 
 (defn init []
   (Bukkit/resetRecipes)
