@@ -84,7 +84,7 @@
   (let [player (.getPlayer evt)]
     (condp = (.getAction evt)
       org.bukkit.event.block.Action/LEFT_CLICK_AIR
-      (when (= "槍" (-> player .getItemInHand .getItemMeta .getDisplayName))
+      (when (= "槍" (some-> player .getItemInHand .getItemMeta .getDisplayName))
         (let [arrow (.launchProjectile player Arrow)]
           (later 0
             (.setVelocity arrow (.multiply (.getVelocity arrow) 2)))
@@ -250,24 +250,40 @@
             (l/block-set b Material/AIR 0))))
       nil)))
 
-(defn ChunkPopulateEvent [^org.bukkit.event.world.ChunkPopulateEvent evt]
-  (let [bench-before (System/currentTimeMillis)]
+(defonce jobqueue (atom []))
 
-    (let [chunk (.getChunk evt)]
-      #_ (when (= "world" (-> chunk .getWorld .getName))
-        (doseq [block (chunk-blocks chunk)]
-          (when-let [type-to
-                     ({127 Material/LAVA 126 Material/GLASS}
-                       (-> block .getY))]
-            (l/block-set block type-to 0)))))
+(defmacro job-enqueue! [& exprs]
+  `(swap! jobqueue conj (fn [] ~@exprs)))
 
-    (prn 'Took (- (System/currentTimeMillis) bench-before)) 'msec))
+(defn periodically-1tick []
+  (when-let [f (first @jobqueue)]
+    (swap! jobqueue rest)
+    (f)))
+
+(defonce scheduler
+  (let [scheduler (Bukkit/getScheduler)]
+    (.scheduleSyncRepeatingTask
+      scheduler
+      (-> (Bukkit/getPluginManager) (.getPlugin "cloft2"))
+      #'periodically-1tick 1 1)
+    scheduler))
 
 (defn- chunk-blocks [^org.bukkit.Chunk chunk]
   (for [x (range 16)
         y (range 128)
         z (range 16)]
     (.getBlock chunk x y z)))
+
+(defn ChunkPopulateEvent [^org.bukkit.event.world.ChunkPopulateEvent evt]
+  (let [chunk (.getChunk evt)]
+    (when (= "world" (-> chunk .getWorld .getName))
+      (job-enqueue!
+        (prn chunk 'left (count @jobqueue))
+        (doseq [block (chunk-blocks chunk)]
+          (when-let [type-to
+                     ({127 Material/LAVA 126 Material/GLASS}
+                       (-> block .getY))]
+            (l/block-set block type-to 0)))))) )
 
 #_ (let [chunk (-> (Bukkit/getPlayer "ujm") .getLocation .getChunk) ]
   (let [bench-before (System/currentTimeMillis)]
