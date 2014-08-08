@@ -39,7 +39,7 @@
               (prn resp)))
           (catch Exception e (-> e .printStackTrace))
           #_(finally (.close nrepl-conn))))
-      #_ (nrepl/message
+      (nrepl/message
         nrepl-client
         {:op "load-file"
          :file (let [msg (str "Deployed by " (System/getenv "USER"))]
