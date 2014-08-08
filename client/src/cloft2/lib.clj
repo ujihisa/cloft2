@@ -61,6 +61,25 @@
   (-> (doto (.getLocation block) (.add 0 -1 0))
     .getBlock))
 
+(defn block-substance-below [entity]
+  (let [below (block-below entity)]
+   (cond
+     (= Material/AIR (.getType below))
+     (nearest-block below
+       (remove #(= Material/AIR %)
+         (around-block-square-horizontal below 1)))
+     :else below)))
+
+(defn nearest-block [basis candidates]
+  ;; TODO: return nearest block
+  (first candidates)
+  )
+
+(defn around-block-square-horizontal [block size]
+  ;; TODO: return array of blocks
+  []
+  )
+
 (defn block-above [^Block block]
   (-> block .getLocation (add-loc 0 1 0) .getBlock))
 
