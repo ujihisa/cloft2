@@ -65,7 +65,7 @@
   (let [below (block-below entity)]
    (cond
      (= Material/AIR (.getType below))
-     (nearest-block below
+     (nearest-block entity
        (remove #(= Material/AIR %)
          (around-block-square-horizontal below 1)))
      :else below)))
