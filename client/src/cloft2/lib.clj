@@ -89,3 +89,7 @@
 (defn rename [^ItemStack itemstack ^String new-name]
   (.setItemMeta itemstack
                 (doto (.getItemMeta itemstack) (.setDisplayName  new-name))))
+
+(defn color [color text]
+  (clojure.string/join "" ["~{ChatColor/" (clojure.string/upper-case color) "}" text "~{ChatColor/RESET}"]))
+
