@@ -277,7 +277,7 @@
 (defn ChunkPopulateEvent [^org.bukkit.event.world.ChunkPopulateEvent evt]
   (let [chunk (.getChunk evt)]
     (when (= "world" (-> chunk .getWorld .getName))
-      (job-enqueue!
+      #_ (job-enqueue!
         (prn chunk 'left (count @jobqueue))
         (doseq [block (chunk-blocks chunk)]
           (when-let [type-to
