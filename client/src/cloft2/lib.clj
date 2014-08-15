@@ -31,7 +31,7 @@
     :test (fn []
             (assert (= 100 (sec 5))))}
   sec [n]
-  (int (* 20 n))
+  (int (* 20 n)))
 
 (def ^:dynamic *plugin*
   (delay (-> (Bukkit/getPluginManager) (.getPlugin "cloft2"))))
