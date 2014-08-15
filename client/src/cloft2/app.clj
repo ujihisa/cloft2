@@ -51,6 +51,7 @@
 (defn AsyncPlayerChatEvent [^org.bukkit.event.player.AsyncPlayerChatEvent evt]
   (let [player (-> evt .getPlayer)
         msg (-> evt .getMessage
+              (s/replace #"knkw|kankiwa|kiwa|kankiwamattekita|kw" "感極まってきた")
               (s/replace #"!kaomoji" "(*´ω｀*)")
               (s/replace #"daiji" "大事")
               (s/replace #"failed" "(≧ロ≦) アチャー アチャ・・・(ノ_< ;) ")
