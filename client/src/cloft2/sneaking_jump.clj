@@ -23,7 +23,8 @@
                    (or 0) (dec))))))
     (when (= 3 (@player-sneak-counter player))
       #_(helper/play-sound (.getLocation player) Sound/BAT_TAKEOFF 0.8 (rand-nth [0.5 0.8 1.2]))
-      (let [location (-> player .getLocation) world (-> location .getWorld)]
+      (let [location (-> player .getLocation)
+            world (-> location .getWorld)]
         (.playSound world (.getLocation player) Sound/BAT_TAKEOFF 0.8 0.5))
       (.setFallDistance player 0.0)
       (.setVelocity player (let [v (.getVelocity player)]
@@ -40,7 +41,8 @@
              (not (.isOnGround player)))
     #_(helper/play-sound (.getLocation player) Sound/BAT_TAKEOFF 0.8 0.5)
     #_(helper/play-sound (.getLocation player) Sound/BAT_TAKEOFF 0.8 1.0)
-    (let [location (-> player .getLocation) world (-> location .getWorld)]
+    (let [location (-> player .getLocation)
+          world (-> location .getWorld)]
       (.playSound world (.getLocation player) Sound/BAT_TAKEOFF 0.8 0.5))
     (.setFallDistance player 0.0)
     (.setVelocity player (doto (.getVelocity player)
