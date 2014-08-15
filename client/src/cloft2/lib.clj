@@ -111,3 +111,6 @@
 
 (defn color [color text]
   (clojure.string/join "" ["~{ChatColor/" (clojure.string/upper-case color) "}" text "~{ChatColor/RESET}"]))
+
+(defn play-sound [^Location loc ^org.bukkit.Sound sound ^Float volume ^Float pitch]
+  (.playSound (.getWorld loc) sound volume pitch))
