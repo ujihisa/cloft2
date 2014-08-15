@@ -52,6 +52,8 @@
   (let [player (-> evt .getPlayer)
         msg (-> evt .getMessage
               (s/replace #"!kaomoji" "(*´ω｀*)")
+              (s/replace #"daiji" "大事")
+              (s/replace #"failed" "(≧ロ≦) アチャー アチャ・・・(ノ_< ;) ")
               (s/replace #"benri|ven\s?lee" "便利")
               (s/replace #"[fh]u[bv]en" "不便")
               (s/replace #"wa-i" "わーい[^。^]")
