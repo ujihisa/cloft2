@@ -2,7 +2,7 @@
   (:use [cloft2.lib :only (later sec)])
   (:import [org.bukkit Material Sound]
            [org.bukkit.entity Player]
-           [org.bukkit Location]))
+           [org.bukkit World]))
 
 (def player-sneak-counter (ref {}))
 
@@ -23,7 +23,8 @@
                    (or 0) (dec))))))
     (when (= 3 (@player-sneak-counter player))
       #_(helper/play-sound (.getLocation player) Sound/BAT_TAKEOFF 0.8 (rand-nth [0.5 0.8 1.2]))
-      (Location.playSound (.getLocation player) Sound/BAT_TAKEOFF 0.8 0.5)
+      (let [location (-> player .getLocation) world (-> location .getWorld)]
+        (.playSound world (.getLocation player) Sound/BAT_TAKEOFF 0.8 0.5))
       (.setFallDistance player 0.0)
       (.setVelocity player (let [v (.getVelocity player)]
                              (.setY v (+ 0.9 (.getY v)))
